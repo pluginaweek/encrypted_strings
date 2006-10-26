@@ -22,10 +22,12 @@
 require 'openssl'
 require 'base64'
 
-require File.join('encrypted_strings', 'encrypted_string')
-require File.join('encrypted_strings', 'symmetrically_encrypted_string')
-require File.join('encrypted_strings', 'asymmetrically_encrypted_string')
-require File.join('encrypted_strings', 'sha_encrypted_string')
+require File.join('encrypted_strings', 'core_ext', 'encrypted_string')
+require File.join('encrypted_strings', 'core_ext', 'symmetrically_encrypted_string')
+require File.join('encrypted_strings', 'core_ext', 'asymmetrically_encrypted_string')
+require File.join('encrypted_strings', 'core_ext', 'sha_encrypted_string')
+
+require File.join('encrypted_strings', 'active_record', 'encrypts')
 
 class NoKeyError < StandardError
 end
@@ -40,71 +42,59 @@ module PluginAWeek #:nodoc:
   module CoreExtensions #:nodoc:
     module String #:nodoc:
       module EncryptedStrings
-        #
-        #
-        def encrypt(mode = :sha, options = {})
-          options[:encrypt] = true
-          
-          case mode
-            when :sha
-              SHAEncryptedString.new(self, options)
-            when :asymmetric, :asymmetrical
-              AsymmetricallyEncryptedString(self, options)
-            when :symmetric, :symmetrical
-              SymmetricallyEncryptedString.new(self, options)
-            else
-              raise ArgumentError, "Invalid encryption mode: #{mode}"
+        def self.included(base) #:nodoc:
+          base.class_eval do
+            alias_method :equals_without_encryption, :==
+            alias_method :==, :equals_with_encryption
           end
+        end
+        
+        #
+        #
+        def encrypt(*args)
+          options = args.last.is_a?(::Hash) ? args.pop : {}
+          mode = (args.first || :sha).to_sym
+          
+          send("encrypt_#{mode}", options)
+        end
+        
+        def encrypt_sha(options = {})
+          create_encrypted_string(SHAEncryptedString, options)
+        end
+        
+        #
+        #
+        def encrypt_asymmetrically(options = {})
+          create_encrypted_string(AsymmetricallyEncryptedString, options)
+        end
+        alias_method :encrypt_asymmetric, :encrypt_asymmetrically
+        
+        #
+        #
+        def encrypt_symmetrically(options = {})
+          create_encrypted_string(SymmetricallyEncryptedString, options)
+        end
+        alias_method :encrypt_symmetric, :encrypt_symmetrically
+        
+        #
+        #
+        def equals_with_encryption(other)
+          if other.is_a?(EncryptedString) && self.class == ::String
+            other == self
+          else
+            equals_without_encryption(other)
+          end
+        end
+        
+        private
+        def create_encrypted_string(klass, options) #:nodoc:
+          klass.new(self, options)
         end
       end
     end
   end
-  
-  module Encrypts #:nodoc:
-    def self.included(base) #:nodoc:
-      base.extend(MacroMethods)
-    end
-    
-    module MacroMethods
-      #
-      #
-      def encrypts(attr_name, options = {})
-        options.reverse_merge!(
-          :mode => :sha
-        )
-        
-        klass = case options.delete(:mode)
-          when :sha
-            SHAEncryptedString
-          when :asymmetric, :asymmetrically
-            AsymmetricallyEncryptedString
-          when :symmetric, :symmetrically
-            SymmetricallyEncryptedString
-        end
-        
-        var_name = "@#{attr_name}"
-        
-        # Define the reader
-        reader_options = options.dup
-        reader_options[:encrypt] = false
-        define_method(attr_name) do
-          if (data = read_attribute(attr_name)) && !data.is_a?(klass)
-            data = instance_variable_get(var_name) || instance_variable_set(var_name, klass.new(data, reader_options))
-          end
-          
-          data
-        end
-        
-        # Define the writer
-        define_method("#{attr_name}=") do |data|
-          unless data.is_a?(EncryptedString)
-            data = klass.new(data, options)
-          end
-          
-          write_attribute(attr_name, data)
-          instance_variable_set(var_name, klass.new(data, options))
-        end
-      end
-    end
-  end
+end
+
+::String.class_eval do
+  include PluginAWeek::CoreExtensions::String::EncryptedStrings
 end

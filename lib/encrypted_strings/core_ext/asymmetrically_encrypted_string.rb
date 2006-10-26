@@ -2,16 +2,16 @@
 #
 class AsymmetricallyEncryptedString < EncryptedString
   #
-  @@default_private_key_file = nil
   cattr_accessor :default_private_key_file
+  @@default_private_key_file = nil
   
   #
-  @@default_public_key_file = nil
   cattr_accessor :default_public_key_file
+  @@default_public_key_file = nil
   
   #
-  @@default_symmetric_algorithm = nil
   cattr_accessor :default_symmetric_algorithm
+  @@default_symmetric_algorithm = nil
   
   attr_reader   :private_key_file
   attr_reader   :public_key_file

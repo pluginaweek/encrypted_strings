@@ -2,12 +2,12 @@
 #
 class SymmetricallyEncryptedString < EncryptedString
   #
-  @@default_algorithm = 'DES-EDE3-CBC'
   cattr_accessor :default_algorithm
+  @@default_algorithm = 'DES-EDE3-CBC'
   
   #
-  @@default_key = nil
   cattr_accessor :default_key
+  @@default_key = nil
   
   attr_accessor :algorithm
   attr_accessor :key

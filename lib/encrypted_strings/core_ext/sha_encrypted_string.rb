@@ -1,8 +1,8 @@
 require 'digest/sha1'
 
 class SHAEncryptedString < EncryptedString
-  @@salt = 'salt'
   cattr_accessor :salt
+  @@salt = 'salt'
   
   attr_accessor :salt
   
