@@ -1,94 +1,87 @@
-= Sentry lib - painless encryption library
+= Encrypted Strings
 
-Sentry is a simple wrapper around the mostly undocumented OpenSSL encryption classes.  
-For now, look at the pseudo test cases in sentry.rb until I can get more examples written out.
+Encrypted Strings is a simple wrapper around the mostly undocumented OpenSSL encryption classes.  
 
 == Resources
 
-Install
+Wiki
 
-* gem install sentry
+* http://wiki.pluginaweek.org/Encrypted_strings
 
-Rubyforge project
+Blog
 
-* http://rubyforge.org/projects/sentry
-
-RDocs
-
-* http://sentry.rubyforge.org
+* http://www.pluginaweek.org/2006/11/1/1-encrypted_strings-could-it-get-any-easier/
 
 Subversion
 
-* http://techno-weenie.net/svn/projects/sentry
+* http://svn.pluginaweek.org/trunk/plugins/ruby/string/encrypted_strings
 
-Collaboa
+Trac
 
-* http://collaboa.techno-weenie.net/repository/browse/sentry
+* http://dev.pluginaweek.org/browse/trunk/plugins/ruby/string/encrypted_strings
 
-== Using with ActiveRecord
+== Credits
 
-I wrote this for the purpose of encrypting ActiveRecord attributes.  Just <tt>require 'sentry'</tt>, and some new 
-class methods will be available to you:
+A huge thanks to Rick Olson and his Sentry plugin over at http://svn.techno-weenie.net/projects/plugins/sentry/.
+Much of this plugin's code is based on his work.  We simply made some improvements to the syntax.
 
-=== generates_crypted
+== Types of encryption supported
 
-  generates_crypted :password, :mode => :sha | :symmetric | :asymmetric
-  
-This is the generic class method to use.  Default mode is :sha.  
+This plugin supports Hashed, Symmetric, and Asymmetric encryption modes.
 
-=== generates_crypted_hash_of
+== How to use
 
-  generates_crypted_hash_of :password
+You can encrypt strings in one of two ways:
 
-This is a shortcut for using SHA encryption.  No different than specifying <tt>generates_crypted :password</tt>.  In the above 
-example, model.password is a virtual field, and the SHA hash is saved to model.crypted_password
+(1) Directly through a string instance
 
-=== asymmetrically_encrypts
-  
-  asymmetrically_encrypts :password
+This plugin adds the method 'encrypt' and other supporting methods to the String
+class, giving you the ability to easily encrypt strings.
 
-This is a shortcut for using an asymmetrical algorithm with a private/public key file.  To use this, generate a public and
-private key with Sentry::AsymmetricalSentry.save_random_rsa_key(private_key_file, public_key_file).  If you want to encrypt the
-private key file with a symmetrical algorithm, pass a secret key (neither the key nor the decrypted value will be stored).
+	>> password = "shhhh"
+	=> "shhhh"
+	>> crypted_password = password.encrypt
+	=> "66c85d26dadde7e1db27e15a0776c921e27143bd"
+	>> crypted_password.class
+	=> SHAEncryptedString
+	>> crypted_password == "shhhh"
+	=> true
+	>> crypted_password.decrypt
+	NotImplementedError: Cannot decrypt a SHAEncryptedString
+	        from ./script/../config/../config/../vendor/plugins/encrypted_strings/lib/encrypted_strings/encrypted_string.rb:44:in `decrypt'
+	        from (irb):6
 
-  Sentry::AsymmetricSentry.save_random_rsa_key(private_key_file, public_key_file, :key => 'secret_password')
+When encrypt is called, it generates an instance of a new encrypted string class
+that contains an encrypted value of the string.  The default encryption mode
+is using SHA-1.  For encryption modes that do not support decryption, equality
+with other strings is tested by encrypting the other string and checking whether
+the resulting encrypted value is the same.
 
-What that does, is requires you to pass in that same secret password when accesing the method.  
+If you wanted to use symmetric encryption, you could do so with the following:
 
-  class Model < ActiveRecord::Base
-    generates_crypted :password, :mode => :asymmetric
-  end
-  
-  model.password = '5234523453425'
-  model.save   # password is encrypted and saved to crypted_password in the database, 
-               # model.password is cleared and becomes a virtual field.
-  model.password('secret_password')
-  => '5234523453425'
+	>> password = "shhhh"
+	=> "shhhh"
+	>> crypted_password = password.encrypt(:symmetrically, :key => "my_key")
+	=> "jDACXI5hMPI=\n"
+	>> crypted_password.class
+	=> SymmetricallyEncryptedString
+	>> crypted_password == "shhhh"
+	=> true
+	>> crypted_password.decrypt
+	=> "shhhh"
 
-The public and private key file names can be set in config/environment.rb
+(2) Using the encrypted string classes
 
-  Sentry::AsymmetricSentry.default_public_key_file = "#{RAILS_ROOT}/config/public.key"
-  Sentry::AsymmetricSentry.default_private_key_file = "#{RAILS_ROOT}/config/private.key"
+You can also manually create instances of the encryption classes by using the
+following:
 
-If the private key was encrypted with the Sentry::AsymmetricalSentry#save_random_rsa_key, you must provide that same key
-when accessing the AR model.
+* SHAEncryptedString
+* SymmetricallyEncryptedString
+* AsymmetricallyEncryptedString
 
-=== symmetrically_encrypts
+=== Asymmetric encryption
 
-  symmetrically_encrypts :password
+The public and private key file names can be set via the following:
 
-This is a shortcut for using a symmetrical algorithm with a secret password to encrypt the field.  
-
-  class Model < ActiveRecord::Base
-    generates_crypted :password, :mode => :symmetric
-  end
-  
-  model.password = '5234523453425'
-  model.save   # password is encrypted and saved to crypted_password in the database, 
-               # model.password is cleared and becomes a virtual field.
-  model.password
-  => '5234523453425'
-
-The secret password can be set in config/environment.rb
-
-  Sentry::SymmetricSentry.default_key = "secret_password"
+  AsymmetricallyEncryptedString.default_public_key_file = "./public.key"
+  AsymmetricallyEncryptedString.default_private_key_file = "./private.key"
