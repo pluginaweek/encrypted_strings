@@ -53,7 +53,7 @@ module PluginAWeek #:nodoc:
         # Adds support for testing equality with an encrypted string
         #
         def equals_with_encryption(other)
-          if other.is_a?(EncryptedString) && self.class == ::String
+          if EncryptedString === other
             other == self
           else
             equals_without_encryption(other)
