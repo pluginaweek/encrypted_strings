@@ -16,18 +16,18 @@ class AsymmetricallyEncryptedString < EncryptedString
   cattr_accessor :default_public_key_file
   
   # The default algorithm to use.  Default is nil.
-  @@default_symmetric_algorithm = nil
-  cattr_accessor :default_symmetric_algorithm
+  @@default_algorithm = nil
+  cattr_accessor :default_algorithm
   
   attr_reader   :private_key_file
   attr_reader   :public_key_file
-  attr_accessor :symmetric_algorithm
+  attr_accessor :algorithm
   attr_accessor :key
   
   # Configuration options:
   # * <tt>private_key_file</tt> - Encrypted private key file
   # * <tt>public_key_file</tt> - Public key file
-  # * <tt>symmetric_algorithm</tt> - Algorithm to use symmetrically encrypted strings
+  # * <tt>algorithm</tt> - Algorithm to use symmetrically encrypted strings
   # * <tt>encrypt</tt> - Whether or not to encrypt the data.  Default is true.
   # This should usually only be set if the data is not yet encrypted.
   # 
@@ -37,18 +37,19 @@ class AsymmetricallyEncryptedString < EncryptedString
       :private_key_file,
       :public_key_file,
       :key,
-      :symmetric_algorithm,
+      :algorithm,
       :encrypt
     )
     options.reverse_merge!(
       :private_key_file => @@default_private_key_file,
       :public_key_file => @@default_public_key_file,
-      :symmetric_algorithm => @@default_symmetric_algorithm
+      :algorithm => @@default_algorithm
     )
     
     @public_key = @private_key = nil
+    @key = options[:key]
+    @algorithm  = options[:algorithm]
     
-    self.key = options[:key]
     self.private_key_file = options[:private_key_file]
     self.public_key_file  = options[:public_key_file]
     
