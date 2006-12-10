@@ -1,6 +1,7 @@
-= Encrypted Strings
+= encrypted_strings
 
-Encrypted Strings is a simple wrapper around the mostly undocumented OpenSSL encryption classes.  
+encrypted_strings is a simple wrapper around the mostly undocumented OpenSSL
+encryption classes.
 
 == Resources
 
@@ -10,7 +11,7 @@ Wiki
 
 Blog
 
-* http://www.pluginaweek.org/2006/11/1/1-encrypted_strings-could-it-get-any-easier/
+* http://www.pluginaweek.org/
 
 Subversion
 
@@ -19,11 +20,6 @@ Subversion
 Trac
 
 * http://dev.pluginaweek.org/browse/trunk/plugins/ruby/string/encrypted_strings
-
-== Credits
-
-A huge thanks to Rick Olson and his Sentry plugin over at http://svn.techno-weenie.net/projects/plugins/sentry/.
-Much of this plugin's code is based on his work.  We simply made some improvements to the syntax.
 
 == Types of encryption supported
 
@@ -85,3 +81,9 @@ The public and private key file names can be set via the following:
 
   AsymmetricallyEncryptedString.default_public_key_file = "./public.key"
   AsymmetricallyEncryptedString.default_private_key_file = "./private.key"
+
+== Credits
+
+A huge thanks to Rick Olson and his Sentry plugin over at http://svn.techno-weenie.net/projects/plugins/sentry/.
+Much of this plugin's code is based on his work.  We simply made some
+improvements to the syntax.
