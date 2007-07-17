@@ -27,10 +27,6 @@ This plugin supports Hashed, Symmetric, and Asymmetric encryption modes.
 
 == How to use
 
-You can encrypt strings in one of two ways:
-
-(1) Directly through a string instance
-
 This plugin adds the method 'encrypt' and other supporting methods to the String
 class, giving you the ability to easily encrypt strings.
 
@@ -38,8 +34,10 @@ class, giving you the ability to easily encrypt strings.
 	=> "shhhh"
 	>> crypted_password = password.encrypt
 	=> "66c85d26dadde7e1db27e15a0776c921e27143bd"
-	>> crypted_password.class
-	=> SHAEncryptedString
+  >> crypted_password.class
+  => String
+  >> crypted_password.encryptor
+  => #<PluginAWeek::EncryptedStrings::ShaEncryptor:0x2ab769352500 @salt="salt">
 	>> crypted_password == "shhhh"
 	=> true
 	>> crypted_password.decrypt
@@ -65,15 +63,6 @@ If you wanted to use symmetric encryption, you could do so with the following:
 	=> true
 	>> crypted_password.decrypt
 	=> "shhhh"
-
-(2) Using the encrypted string classes
-
-You can also manually create instances of the encryption classes by using the
-following:
-
-* SHAEncryptedString
-* SymmetricallyEncryptedString
-* AsymmetricallyEncryptedString
 
 === Asymmetric encryption
 
