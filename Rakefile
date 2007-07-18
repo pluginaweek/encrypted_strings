@@ -31,14 +31,14 @@ spec = Gem::Specification.new do |s|
   s.name            = PKG_NAME
   s.version         = PKG_VERSION
   s.platform        = Gem::Platform::RUBY
-  s.summary         = 'Simple wrapper around the mostly undocumented OpenSSL encryption classes.'
+  s.summary         = 'Dead-simple string encryption/decryption syntax.'
   
   s.files           = FileList['{lib,tasks,test}/**/*'].to_a + %w(init.rb MIT-LICENSE Rakefile README)
   s.require_path    = 'lib'
   s.autorequire     = 'encrypted_strings'
   s.has_rdoc        = true
   s.test_files      = Dir['test/**/*_test.rb']
-  s.add_dependency    'active_support', '>= 1.3.1'
+  s.add_dependency    'activesupport', '>= 1.3.1'
   
   s.author          = 'Aaron Pfeifer, Neil Abraham'
   s.email           = 'info@pluginaweek.org'

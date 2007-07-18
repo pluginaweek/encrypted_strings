@@ -10,7 +10,7 @@ require 'encrypted_strings/no_public_key_error'
 # http://support.microsoft.com/kb/246071
 module PluginAWeek #:nodoc:
   module EncryptedStrings #:nodoc:
-    class AsymmetricEncryptor
+    class AsymmetricEncryptor < Encryptor
       # The default private key to use during encryption.  Default is nil.
       @@default_private_key_file = nil
       cattr_accessor :default_private_key_file
