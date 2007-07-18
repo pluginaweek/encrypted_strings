@@ -2,9 +2,9 @@ require File.join(File.dirname(__FILE__), 'test_helper')
 
 class SymmetricallyEncryptedStringTest < Test::Unit::TestCase
   def setup
-    @data = 'encrypted_strings'
+    @data = 'test'
     @key = 'secret'
-    @encrypted = "zGIFuxNpo9/Ayg5gv9WpcqTJPPtG1eW5\n"
+    @encrypted = "MU6e/5LvhKA=\n"
     PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = nil
   end
   

@@ -9,14 +9,17 @@ module PluginAWeek #:nodoc:
           base.class_eval do
             attr_accessor :encryptor
             
-#            alias_method :equals_without_encryption, :==
-#            alias_method :==, :equals_with_encryption
+            alias_method :equals_without_encryption, :==
+            alias_method :==, :equals_with_encryption
           end
         end
         
         # Encrypts this string and replaces it with the encrypted value
         def encrypt!(*args)
-          replace(encrypt(*args))
+          encrypted_string = encrypt(*args)
+          self.encryptor = encrypted_string.encryptor
+          
+          replace(encrypted_string)
         end
         
         # Encrypts the current string using the encryption algorithm specified.
@@ -25,9 +28,9 @@ module PluginAWeek #:nodoc:
         # Configuration options are encryption-specified.  See the encryptor
         # class for that string to find out the options available.
         def encrypt(*args)
-          @encryptor = encryptor_from_args(*args)
-          encrypted_string = @encryptor.encrypt(self)
-          encrypted_string.encryptor = @encryptor
+          encryptor = encryptor_from_args(*args)
+          encrypted_string = encryptor.encrypt(self)
+          encrypted_string.encryptor = encryptor
           
           encrypted_string
         end
@@ -57,30 +60,36 @@ module PluginAWeek #:nodoc:
           !@encryptor.nil? && @encryptor.can_decrypt?
         end
         
-        # Tests whether the other object is equal to this one.  If the other object
-        # is a String, it's equality will be tested by encrypting it based on the
-        # algorithm used in this encrypted string.  If the resulting values are the
-        # same, then the strings are equal.
-        # 
-        # This method should be overriden for algorithms that generate different
-        # encrypted strings at different times given the same parameters.
+        # Tests whether the other object is equal to this one.  Encrypted strings
+        # will be tested not only on their encrypted strings, but also by
+        # decrypting them and running tests against the decrypted value
         def equals_with_encryption(other)
-          if String === other
-            if other.encrypted?
-              is_string_equal?(other) || other == to_s
+          if !(is_equal = equals_without_encryption(other)) && String === other
+            if encrypted?
+              if other.encrypted?
+                is_string_equal?(self, other) || is_string_equal?(other, self) || self.can_decrypt? && is_string_equal?(self.decrypt, other) || other.can_decrypt? && is_string_equal?(other.decrypt, self)
+              else
+                is_string_equal?(other, self)
+              end
             else
-              is_string_equal?(other)
+              if other.encrypted?
+                is_string_equal?(self, other)
+              else
+                false
+              end
             end
           else
-            equals_without_encryption(other)
+            is_equal
           end
         end
         
         private
-        def is_string_equal?(value) #:nodoc:
-          value = value.to_s if value.encrypted?
-          
-          to_s == value || (can_decrypt? ? decrypt == value : to_s == @encryptor.encrypt(value))
+        def is_string_equal?(value, encrypted_value) #:nodoc:
+          if encrypted_value.can_decrypt?
+            encrypted_value.decrypt.equals_without_encryption(value)
+          else
+            encrypted_value.equals_without_encryption(encrypted_value.encryptor.encrypt(value))
+          end
         end
         
         def encryptor_from_args(*args) #:nodoc:

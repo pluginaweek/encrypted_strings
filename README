@@ -1,7 +1,6 @@
 = encrypted_strings
 
-encrypted_strings is a simple wrapper around the mostly undocumented OpenSSL
-encryption classes.
+encrypted_strings provides dead-simple string encryption/decryption syntax.
 
 == Resources
 
@@ -30,49 +29,65 @@ This plugin supports Hashed, Symmetric, and Asymmetric encryption modes.
 This plugin adds the method 'encrypt' and other supporting methods to the String
 class, giving you the ability to easily encrypt strings.
 
-	>> password = "shhhh"
-	=> "shhhh"
-	>> crypted_password = password.encrypt
-	=> "66c85d26dadde7e1db27e15a0776c921e27143bd"
+  >> password = "shhhh"
+  => "shhhh"
+  >> crypted_password = password.encrypt
+  => "66c85d26dadde7e1db27e15a0776c921e27143bd"
   >> crypted_password.class
   => String
   >> crypted_password.encryptor
-  => #<PluginAWeek::EncryptedStrings::ShaEncryptor:0x2ab769352500 @salt="salt">
-	>> crypted_password == "shhhh"
-	=> true
-	>> crypted_password.decrypt
-	NotImplementedError: Cannot decrypt a SHAEncryptedString
-	        from ./script/../config/../config/../vendor/plugins/encrypted_strings/lib/encrypted_strings/encrypted_string.rb:44:in `decrypt'
-	        from (irb):6
+  => #<PluginAWeek::EncryptedStrings::ShaEncryptor:0x2b9238889460 @salt="salt">
+  >> crypted_password == "shhhh"
+  => true
+  >> crypted_password.decrypt
+  NotImplementedError: Decryption is not supported using a(n) PluginAWeek::EncryptedStrings::ShaEncryptor
+          from ./script/../config/../config/../vendor/plugins/encrypted_strings/lib/encrypted_strings/encryptor.rb:13:in `decrypt'
+          from ./script/../config/../config/../vendor/plugins/encrypted_strings/lib/encrypted_strings/extensions/string.rb:52:in `decrypt'
+          from (irb):40
 
-When encrypt is called, it generates an instance of a new encrypted string class
-that contains an encrypted value of the string.  The default encryption mode
-is using SHA-1.  For encryption modes that do not support decryption, equality
+When encrypt is called, it creates an encryptor instance which is used for
+future encryption and decryption of the string.  The default encryptor uses
+SHA-1 encryption.  For encryption modes that do not support decryption, equality
 with other strings is tested by encrypting the other string and checking whether
 the resulting encrypted value is the same.
 
 If you wanted to use symmetric encryption, you could do so with the following:
 
-	>> password = "shhhh"
-	=> "shhhh"
-	>> crypted_password = password.encrypt(:symmetrically, :key => "my_key")
-	=> "jDACXI5hMPI=\n"
-	>> crypted_password.class
-	=> SymmetricallyEncryptedString
-	>> crypted_password == "shhhh"
-	=> true
-	>> crypted_password.decrypt
-	=> "shhhh"
+  >> password = "shhhh"
+  => "shhhh"
+  >> crypted_password = password.encrypt(:symmetric, :key => "my_key")
+  => "jDACXI5hMPI=\n"
+  >> crypted_password.class
+  => String
+  >> crypted_password == "shhhh"
+  => true
+  >> password = crypted_password.decrypt
+  => "shhhh"
 
 === Asymmetric encryption
 
 The public and private key file names can be set via the following:
 
-  AsymmetricallyEncryptedString.default_public_key_file = "./public.key"
-  AsymmetricallyEncryptedString.default_private_key_file = "./private.key"
+  PluginAWeek::EncryptedStrings::AsymmetricEncryptor.default_public_key_file = "./public.key"
+  PluginAWeek::EncryptedStrings::AsymmetricEncryptor.default_private_key_file = "./private.key"
+
+== In-place editing
+
+In addition to generating the encrypted/decrypted strings, you can also
+replace the original string by using the bang:
+
+  >> password = "shhhh"
+  => "shhhh"
+  >> password.encrypt!(:symmetric, :key => "my_key")
+  => "jDACXI5hMPI=\n"
+  >> password
+  => "jDACXI5hMPI=\n"
+  >> password.decrypt!
+  => "shhhh"
+  >> password
+  => "shhhh"
 
 == Credits
 
 A huge thanks to Rick Olson and his Sentry plugin over at http://svn.techno-weenie.net/projects/plugins/sentry/.
-Much of this plugin's code is based on his work.  We simply made some
-improvements to the syntax.
+Much of this plugin's code is based on his work.

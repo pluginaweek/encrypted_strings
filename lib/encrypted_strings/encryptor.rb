@@ -10,7 +10,7 @@ module PluginAWeek #:nodoc:
       
       # By default, decryption is not supported
       def decrypt(data)
-        raise NotImplementedError, "Description is not supported using a(n) #{self.class.name}"
+        raise NotImplementedError, "Decryption is not supported using a(n) #{self.class.name}"
       end
     end
   end

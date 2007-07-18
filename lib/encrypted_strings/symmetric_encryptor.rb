@@ -12,7 +12,7 @@ module PluginAWeek #:nodoc:
       @@default_algorithm = 'DES-EDE3-CBC'
       cattr_accessor :default_algorithm
       
-      # The default key to use.  Defualt is nil
+      # The default key to use.  Default is nil
       @@default_key = nil
       cattr_accessor :default_key
       
