@@ -1,15 +1,15 @@
 require 'encrypted_strings/no_private_key_error'
 require 'encrypted_strings/no_public_key_error'
 
-# Encryption in which the keys used to encrypt/decrypt come in pairs.  Also known
-# as public key encryption.  Anything that's encrypted using the public key can
-# only be decrypted with the same algorithm and a matching private key.
-# Any message that is encrypted with the private key can only be decrypted
-# with the matching public key.
-# 
-# http://support.microsoft.com/kb/246071
 module PluginAWeek #:nodoc:
   module EncryptedStrings #:nodoc:
+    # Encryption in which the keys used to encrypt/decrypt come in pairs.  Also known
+    # as public key encryption.  Anything that's encrypted using the public key can
+    # only be decrypted with the same algorithm and a matching private key.
+    # Any message that is encrypted with the private key can only be decrypted
+    # with the matching public key.
+    # 
+    # http://support.microsoft.com/kb/246071
     class AsymmetricEncryptor < Encryptor
       # The default private key to use during encryption.  Default is nil.
       @@default_private_key_file = nil
@@ -31,6 +31,7 @@ module PluginAWeek #:nodoc:
       # Configuration options:
       # * <tt>private_key_file</tt> - Encrypted private key file
       # * <tt>public_key_file</tt> - Public key file
+      # * <tt>key</tt> - The key to use in the symmetric encryptor
       # * <tt>algorithm</tt> - Algorithm to use symmetrically encrypted strings
       def initialize(options = {})
         options = options.symbolize_keys

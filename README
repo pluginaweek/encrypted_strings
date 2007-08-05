@@ -4,6 +4,10 @@ encrypted_strings provides dead-simple string encryption/decryption syntax.
 
 == Resources
 
+API
+
+* http://api.pluginaweek.org/encrypted_strings
+
 Wiki
 
 * http://wiki.pluginaweek.org/Encrypted_strings
@@ -87,7 +91,7 @@ replace the original string by using the bang:
   >> password
   => "shhhh"
 
-== Credits
+== References
 
 A huge thanks to Rick Olson and his Sentry plugin over at http://svn.techno-weenie.net/projects/plugins/sentry/.
 Much of this plugin's code is based on his work.

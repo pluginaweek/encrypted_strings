@@ -4,6 +4,7 @@ require 'base64'
 module PluginAWeek #:nodoc:
   module EncryptedStrings #:nodoc:
     module Extensions #:nodoc:
+      # Adds encryption/decryption/equality methods
       module String
         def self.included(base) #:nodoc:
           base.class_eval do

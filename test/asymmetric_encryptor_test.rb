@@ -16,9 +16,13 @@ class AsymmetricEncryptorTest < Test::Unit::TestCase
     PluginAWeek::EncryptedStrings::AsymmetricEncryptor.default_private_key_file = nil
   end
   
-  def test_not_public_or_private
+  def test_should_not_be_public_without_public_key_file
     encryptor = PluginAWeek::EncryptedStrings::AsymmetricEncryptor.new
     assert !encryptor.public?
+  end
+  
+  def test_should_not_be_private_without_privae_key_file
+    encryptor = PluginAWeek::EncryptedStrings::AsymmetricEncryptor.new
     assert !encryptor.private?
   end
   
