@@ -34,7 +34,7 @@ class AsymmetricEncryptorTest < Test::Unit::TestCase
     assert encryptor.public?
     assert encryptor.private?
   end
-#  
+  
   def test_should_read_encrypted_key_files
     encryptor = PluginAWeek::EncryptedStrings::AsymmetricEncryptor.new(
       :public_key_file => @encrypted_public_key_file,
@@ -43,7 +43,7 @@ class AsymmetricEncryptorTest < Test::Unit::TestCase
     assert encryptor.public?
     assert encryptor.private?
   end
-#  
+  
   def test_should_decrypt_files
     encryptor = PluginAWeek::EncryptedStrings::AsymmetricEncryptor.new(
       :public_key_file => @public_key_file,
@@ -52,7 +52,7 @@ class AsymmetricEncryptorTest < Test::Unit::TestCase
     
     assert_equal @data, encryptor.decrypt(@encrypted_data)
   end
-#  
+  
   def test_should_decrypt_files_with_encrypted_key
     encryptor = PluginAWeek::EncryptedStrings::AsymmetricEncryptor.new(
       :public_key_file => @encrypted_public_key_file,
@@ -62,7 +62,7 @@ class AsymmetricEncryptorTest < Test::Unit::TestCase
     
     assert_equal @data, encryptor.decrypt(@encrypted_data_with_encrypted_keys)
   end
-#  
+  
   def test_should_decrypt_files_with_default_key
     set_default_key_files @public_key_file, @private_key_file
     assert_equal @data, PluginAWeek::EncryptedStrings::AsymmetricEncryptor.new.decrypt(@encrypted_data)

@@ -12,13 +12,13 @@ class SymmetricallyEncryptedStringTest < Test::Unit::TestCase
     assert_raises(PluginAWeek::EncryptedStrings::NoKeyError) { PluginAWeek::EncryptedStrings::SymmetricEncryptor.new }
   end
   
-  def test_should_encrypt_with_custom_key_if_key_specified
-    assert_equal @encrypted, PluginAWeek::EncryptedStrings::SymmetricEncryptor.new(:key => @key).encrypt(@data)
-  end
-  
   def test_encrypt_with_default_key_if_key_not_specified
     PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = @key
     assert_equal @encrypted, PluginAWeek::EncryptedStrings::SymmetricEncryptor.new.encrypt(@data)
+  end
+  
+  def test_should_encrypt_with_custom_key_if_key_specified
+    assert_equal @encrypted, PluginAWeek::EncryptedStrings::SymmetricEncryptor.new(:key => @key).encrypt(@data)
   end
   
   def test_should_be_able_to_decrypt

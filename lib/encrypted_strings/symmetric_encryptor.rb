@@ -1,12 +1,43 @@
 require 'encrypted_strings/no_key_error'
 
 module PluginAWeek #:nodoc:
-  module EncryptedStrings #:nodoc
+  module EncryptedStrings
     # Symmetric encryption uses a key and a specific algorithm to encrypt the
     # string.  As long as the key and algorithm are known, the string can be
     # decrypted.
     # 
-    # http://support.microsoft.com/kb/246071
+    # Source: http://support.microsoft.com/kb/246071
+    # 
+    # == Encrypting 
+    # 
+    # To encrypt a string using a symmetric algorithm, the type of algorithm and
+    # key must be specified.  You can define the defaults for these values like
+    # so:
+    # 
+    #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_algorithm = "des-ecb"
+    #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = "secret"
+    # 
+    # If these configuration options are not passed in to #encrypt, then the
+    # default values will be used.  You can override the default values like so:
+    # 
+    #   password = "shhhh"
+    #   password.encrypt(:symmetic, :algorithm => "des-ecb", :key => "secret")  # => "sUG6tYSn0mI=\n"
+    # 
+    # An exception will be raised if no key is specified.
+    # 
+    # == Decrypting
+    # 
+    # To decrypt a string using an symmetric algorithm, the type of algorithm
+    # and key must also be specified.  Defaults for these values can be defined
+    # as show above.
+    # 
+    # If these configuration options are not passed in to #decrypt, then the
+    # default values will be used.  You can override the default values like so:
+    # 
+    #   password = "sUG6tYSn0mI=\n"
+    #   password.decrypt(:symmetic, :algorithm => "des-ecb", :key => "secret") # => "shhhh"
+    # 
+    # An exception will be raised if no key is specified.
     class SymmetricEncryptor < Encryptor
       # The default algorithm to use for encryption.  Default is DES
       @@default_algorithm = 'DES-EDE3-CBC'
@@ -29,7 +60,7 @@ module PluginAWeek #:nodoc:
           :algorithm
         )
         options.reverse_merge!(:key => @@default_key)
-        options[:algorithm] ||= @@default_algorithm # Saves us from nil values for algorithm
+        options[:algorithm] ||= @@default_algorithm
         
         @key = options[:key]
         raise NoKeyError if @key.nil?

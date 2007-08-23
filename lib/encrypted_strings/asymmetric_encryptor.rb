@@ -2,14 +2,52 @@ require 'encrypted_strings/no_private_key_error'
 require 'encrypted_strings/no_public_key_error'
 
 module PluginAWeek #:nodoc:
-  module EncryptedStrings #:nodoc:
-    # Encryption in which the keys used to encrypt/decrypt come in pairs.  Also known
-    # as public key encryption.  Anything that's encrypted using the public key can
-    # only be decrypted with the same algorithm and a matching private key.
-    # Any message that is encrypted with the private key can only be decrypted
-    # with the matching public key.
+  module EncryptedStrings
+    # Encryption in which the keys used to encrypt/decrypt come in pairs.  Also
+    # known as public key encryption.  Anything that's encrypted using the
+    # public key can only be decrypted with the same algorithm and a matching
+    # private key.  Any message that is encrypted with the private key can only
+    # be decrypted with the matching public key.
     # 
-    # http://support.microsoft.com/kb/246071
+    # Source: http://support.microsoft.com/kb/246071
+    # 
+    # == Encrypting 
+    # 
+    # To encrypt a string using an asymmetric algorithm, the location of the
+    # public key file must be specified.  You can define the default for this
+    # value like so:
+    # 
+    #   PluginAWeek::EncryptedStrings::AsymmetricEncryptor.default_public_key_file = "./public.key"
+    # 
+    # If these configuration options are not passed in to #encrypt, then the
+    # default values will be used.  You can override the default values like so:
+    # 
+    #   password = "shhhh"
+    #   password.encrypt(:asymmetic, :public_key_file => "./encrypted_public.key")  # => "INy95irZ8AlHmvc6ZAF/ARsTpbqPIB/4bEAKKOebjsayB7NYWtIzpswvzxqf\nNJ5yyuvxfMODrcg7RimEMFkFlg==\n"
+    # 
+    # An exception will be raised if either the public key file could not be
+    # found or the key could not decrypt the public key file.
+    # 
+    # == Decrypting
+    # 
+    # To decrypt a string using an asymmetric algorithm, the location of the
+    # private key file must be specified.  If this file is itself encrypted, you
+    # must also specify the algorithm and key used to seed the symmetric
+    # algorithm that will decrypt the plublic key file.  You can define defaults
+    # for these values like so:
+    # 
+    #   PluginAWeek::EncryptedStrings::AsymmetricEncryptor.default_private_key_file = "./private.key"
+    #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_algorithm = "DES-EDE3-CBC"
+    #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = "secret_key"
+    # 
+    # If these configuration options are not passed in to #decrypt, then the
+    # default values will be used.  You can override the default values like so:
+    # 
+    #   password = "INy95irZ8AlHmvc6ZAF/ARsTpbqPIB/4bEAKKOebjsayB7NYWtIzpswvzxqf\nNJ5yyuvxfMODrcg7RimEMFkFlg==\n"
+    #   password.decrypt(:asymmetic, :public_key_file => "./encrypted_private.key", :key => "secret") # => "shhhh"
+    # 
+    # An exception will be raised if either the private key file could not be
+    # found or the key could not decrypt the private key file.
     class AsymmetricEncryptor < Encryptor
       # The default private key to use during encryption.  Default is nil.
       @@default_private_key_file = nil
@@ -100,7 +138,7 @@ module PluginAWeek #:nodoc:
       end
       
       private
-      def load_private_key #:nodoc:
+      def load_private_key
         @private_rsa = nil
         
         if @private_key_file && File.file?(@private_key_file)
@@ -108,7 +146,7 @@ module PluginAWeek #:nodoc:
         end
       end
       
-      def load_public_key #:nodoc:
+      def load_public_key
         @public_rsa = nil
         
         if @public_key_file && File.file?(@public_key_file)
@@ -116,16 +154,18 @@ module PluginAWeek #:nodoc:
         end
       end
       
-      # Retrieves private RSA from the encrypted private key
-      def private_rsa #:nodoc:
-        return @private_rsa ||= OpenSSL::PKey::RSA.new(@private_key) unless @key
-        
-        private_key = SymmetricEncryptor.new(:key => @key, :algorithm => @algorithm).decrypt(@private_key)
-        OpenSSL::PKey::RSA.new(private_key)
+      # Retrieves private RSA from the private key
+      def private_rsa
+        if @key
+          private_key = @private_key.decrypt(:symmetric, :key => @key, :algorithm => @algorithm)
+          OpenSSL::PKey::RSA.new(private_key)
+        else
+          @private_rsa ||= OpenSSL::PKey::RSA.new(@private_key)
+        end
       end
       
       # Retrieves the public RSA
-      def public_rsa #:nodoc:
+      def public_rsa
         @public_rsa ||= OpenSSL::PKey::RSA.new(@public_key)
       end
     end

@@ -1,5 +1,9 @@
 *SVN*
 
+*0.0.2* (August 23rd, 2007)
+
+* Fix not allowing the decryption mode to be overriden if the string already has an encryptor
+
 * Convert dos newlines to unix newlines
 
 *0.0.1* (August 5th, 2007)
