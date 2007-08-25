@@ -38,7 +38,6 @@ spec = Gem::Specification.new do |s|
   s.autorequire     = 'encrypted_strings'
   s.has_rdoc        = true
   s.test_files      = Dir['test/**/*_test.rb']
-  s.add_dependency    'activesupport', '>= 1.3.1'
   
   s.author          = 'Aaron Pfeifer, Neil Abraham'
   s.email           = 'info@pluginaweek.org'

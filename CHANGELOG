@@ -1,5 +1,7 @@
 *SVN*
 
+* Remove gem dependency on activesupport
+
 *0.0.2* (August 23rd, 2007)
 
 * Fix not allowing the decryption mode to be overriden if the string already has an encryptor
