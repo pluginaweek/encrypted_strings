@@ -1,6 +1,6 @@
 = encrypted_strings
 
-encrypted_strings provides dead-simple string encryption/decryption syntax.
++encrypted_strings+ provides dead-simple string encryption/decryption syntax.
 
 == Resources
 
@@ -51,7 +51,7 @@ Asymmetric modes.
           from ./script/../config/../config/../vendor/plugins/encrypted_strings/lib/encrypted_strings/extensions/string.rb:52:in `decrypt'
           from (irb):40
 
-When encrypt is called, it creates an encryptor instance which is used for
+When encrypt is called, it creates an +encryptor+ instance which is used for
 future encryption and decryption of the string.  The default encryptor uses
 SHA-1 encryption.  For encryption modes that do not support decryption, equality
 with other strings is tested by encrypting the other string and checking whether
@@ -89,4 +89,4 @@ This plugin does not depend on the presence of any other plugins.
 
 == References
 
-* Rick Olson -  http://svn.techno-weenie.net/projects/plugins/sentry
+* Rick Olson - sentry[http://svn.techno-weenie.net/projects/plugins/sentry]
