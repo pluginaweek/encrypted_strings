@@ -4,25 +4,25 @@
 
 == Resources
 
-API
+Announcement
 
-* http://api.pluginaweek.org/encrypted_strings
+* http://www.pluginaweek.org
 
 Wiki
 
 * http://wiki.pluginaweek.org/Encrypted_strings
 
-Announcement
+API
 
-* http://www.pluginaweek.org
-
-Source
-
-* http://svn.pluginaweek.org/trunk/plugins/ruby/string/encrypted_strings
+* http://api.pluginaweek.org/encrypted_strings
 
 Development
 
 * http://dev.pluginaweek.org/browse/trunk/plugins/ruby/string/encrypted_strings
+
+Source
+
+* http://svn.pluginaweek.org/trunk/plugins/ruby/string/encrypted_strings
 
 == Description
 
