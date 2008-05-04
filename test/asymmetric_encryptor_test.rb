@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'test_helper')
+require File.dirname(__FILE__) + '/test_helper'
 
 class AsymmetricEncryptorTest < Test::Unit::TestCase
   def setup
@@ -90,8 +90,8 @@ class AsymmetricEncryptorTest < Test::Unit::TestCase
   end
   
   private
-  def set_default_key_files(public_key, private_key)
-    PluginAWeek::EncryptedStrings::AsymmetricEncryptor.default_public_key_file = public_key
-    PluginAWeek::EncryptedStrings::AsymmetricEncryptor.default_private_key_file = private_key
-  end
+    def set_default_key_files(public_key, private_key)
+      PluginAWeek::EncryptedStrings::AsymmetricEncryptor.default_public_key_file = public_key
+      PluginAWeek::EncryptedStrings::AsymmetricEncryptor.default_private_key_file = private_key
+    end
 end

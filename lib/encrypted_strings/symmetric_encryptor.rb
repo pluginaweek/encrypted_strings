@@ -14,14 +14,14 @@ module PluginAWeek #:nodoc:
     # key must be specified.  You can define the defaults for these values like
     # so:
     # 
-    #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_algorithm = "des-ecb"
-    #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = "secret"
+    #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_algorithm = 'des-ecb'
+    #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = 'secret'
     # 
     # If these configuration options are not passed in to #encrypt, then the
     # default values will be used.  You can override the default values like so:
     # 
-    #   password = "shhhh"
-    #   password.encrypt(:symmetic, :algorithm => "des-ecb", :key => "secret")  # => "sUG6tYSn0mI=\n"
+    #   password = 'shhhh'
+    #   password.encrypt(:symmetric, :algorithm => 'des-ecb', :key => 'secret')  # => "sUG6tYSn0mI=\n"
     # 
     # An exception will be raised if no key is specified.
     # 
@@ -35,7 +35,7 @@ module PluginAWeek #:nodoc:
     # default values will be used.  You can override the default values like so:
     # 
     #   password = "sUG6tYSn0mI=\n"
-    #   password.decrypt(:symmetic, :algorithm => "des-ecb", :key => "secret") # => "shhhh"
+    #   password.decrypt(:symmetric, :algorithm => 'des-ecb', :key => 'secret') # => "shhhh"
     # 
     # An exception will be raised if no key is specified.
     class SymmetricEncryptor < Encryptor
@@ -51,8 +51,8 @@ module PluginAWeek #:nodoc:
       attr_accessor :key
       
       # Configuration options:
-      # * <tt>key</tt> - Private key
-      # * <tt>algorithm</tt> - Algorithm to use
+      # * +key+ - Private key
+      # * +algorithm+ - Algorithm to use
       def initialize(options = {})
         options = options.symbolize_keys
         options.assert_valid_keys(
@@ -62,24 +62,24 @@ module PluginAWeek #:nodoc:
         options.reverse_merge!(:key => @@default_key)
         options[:algorithm] ||= @@default_algorithm
         
-        @key = options[:key]
-        raise NoKeyError if @key.nil?
+        self.key = options[:key]
+        raise NoKeyError if key.nil?
         
-        @algorithm = options[:algorithm]
+        self.algorithm = options[:algorithm]
         
         super()
       end
       
       # Decrypts the current string using the current key and algorithm specified
       def decrypt(data)
-        cipher.decrypt(@key)
+        cipher.decrypt(key)
         decrypted_data = cipher.update(Base64.decode64(data))
         decrypted_data << cipher.final
       end
       
       # Encrypts the current string using the current key and algorithm specified
       def encrypt(data)
-        cipher.encrypt(@key)
+        cipher.encrypt(key)
         encrypted_data = cipher.update(data)
         encrypted_data << cipher.final
         
@@ -87,9 +87,9 @@ module PluginAWeek #:nodoc:
       end
       
       private
-      def cipher #:nodoc:
-        @cipher ||= OpenSSL::Cipher::Cipher.new(@algorithm)
-      end
+        def cipher #:nodoc:
+          @cipher ||= OpenSSL::Cipher::Cipher.new(algorithm)
+        end
     end
   end
 end

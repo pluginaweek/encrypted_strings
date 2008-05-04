@@ -4,10 +4,6 @@
 
 == Resources
 
-Announcement
-
-* http://www.pluginaweek.org
-
 Wiki
 
 * http://wiki.pluginaweek.org/Encrypted_strings
@@ -18,11 +14,11 @@ API
 
 Development
 
-* http://dev.pluginaweek.org/browse/trunk/plugins/ruby/string/encrypted_strings
+* http://dev.pluginaweek.org/browse/trunk/encrypted_strings
 
 Source
 
-* http://svn.pluginaweek.org/trunk/plugins/ruby/string/encrypted_strings
+* http://svn.pluginaweek.org/trunk/encrypted_strings
 
 == Description
 
@@ -85,7 +81,7 @@ the resulting encrypted value is the same.
 
 == Dependencies
 
-This plugin does not depend on the presence of any other plugins.
+None.
 
 == References
 

@@ -35,7 +35,7 @@ module PluginAWeek #:nodoc:
       attr_accessor :salt
       
       # Configuration options:
-      # * <tt>salt</tt> - Salt value to use for encryption
+      # * +salt+ - Salt value to use for encryption
       def initialize(options = {})
         options = options.symbolize_keys
         options.assert_valid_keys(:salt)
@@ -52,7 +52,7 @@ module PluginAWeek #:nodoc:
       
       # Returns the encrypted value of the data
       def encrypt(data)
-        Digest::SHA1.hexdigest(data + @salt)
+        Digest::SHA1.hexdigest(data + salt)
       end
     end
   end

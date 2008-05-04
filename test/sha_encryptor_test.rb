@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'test_helper')
+require File.dirname(__FILE__) + '/test_helper'
 
 class ShaEncryptorTest < Test::Unit::TestCase
   def setup
@@ -18,6 +18,6 @@ class ShaEncryptorTest < Test::Unit::TestCase
   end
   
   def test_should_raise_exception_if_trying_to_decrypt
-    assert_raises(NotImplementedError) { PluginAWeek::EncryptedStrings::ShaEncryptor.new.decrypt('test') }
+    assert_raises(NotImplementedError) {PluginAWeek::EncryptedStrings::ShaEncryptor.new.decrypt('test')}
   end
 end

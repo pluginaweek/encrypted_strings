@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'test_helper')
+require File.dirname(__FILE__) + '/test_helper'
 
 class EncryptorTest < Test::Unit::TestCase
   def setup
@@ -10,6 +10,6 @@ class EncryptorTest < Test::Unit::TestCase
   end
   
   def test_should_raise_exception_if_decrypt_not_implemented
-    assert_raises(NotImplementedError) { @encryptor.decrypt('test') }
+    assert_raises(NotImplementedError) {@encryptor.decrypt('test')}
   end
 end

@@ -23,7 +23,7 @@ module PluginAWeek #:nodoc:
     # default values will be used.  You can override the default values like so:
     # 
     #   password = "shhhh"
-    #   password.encrypt(:asymmetic, :public_key_file => "./encrypted_public.key")  # => "INy95irZ8AlHmvc6ZAF/ARsTpbqPIB/4bEAKKOebjsayB7NYWtIzpswvzxqf\nNJ5yyuvxfMODrcg7RimEMFkFlg==\n"
+    #   password.encrypt(:asymmetric, :public_key_file => "./encrypted_public.key")  # => "INy95irZ8AlHmvc6ZAF/ARsTpbqPIB/4bEAKKOebjsayB7NYWtIzpswvzxqf\nNJ5yyuvxfMODrcg7RimEMFkFlg==\n"
     # 
     # An exception will be raised if either the public key file could not be
     # found or the key could not decrypt the public key file.
@@ -44,7 +44,7 @@ module PluginAWeek #:nodoc:
     # default values will be used.  You can override the default values like so:
     # 
     #   password = "INy95irZ8AlHmvc6ZAF/ARsTpbqPIB/4bEAKKOebjsayB7NYWtIzpswvzxqf\nNJ5yyuvxfMODrcg7RimEMFkFlg==\n"
-    #   password.decrypt(:asymmetic, :public_key_file => "./encrypted_private.key", :key => "secret") # => "shhhh"
+    #   password.decrypt(:asymmetric, :public_key_file => "./encrypted_private.key", :key => "secret") # => "shhhh"
     # 
     # An exception will be raised if either the private key file could not be
     # found or the key could not decrypt the private key file.
@@ -67,10 +67,10 @@ module PluginAWeek #:nodoc:
       attr_accessor :key
       
       # Configuration options:
-      # * <tt>private_key_file</tt> - Encrypted private key file
-      # * <tt>public_key_file</tt> - Public key file
-      # * <tt>key</tt> - The key to use in the symmetric encryptor
-      # * <tt>algorithm</tt> - Algorithm to use symmetrically encrypted strings
+      # * +private_key_file+ - Encrypted private key file
+      # * +public_key_file+ - Public key file
+      # * +key+ - The key to use in the symmetric encryptor
+      # * +algorithm+ - Algorithm to use symmetrically encrypted strings
       def initialize(options = {})
         options = options.symbolize_keys
         options.assert_valid_keys(
@@ -86,8 +86,8 @@ module PluginAWeek #:nodoc:
         )
         
         @public_key = @private_key = nil
-        @key = options[:key]
-        @algorithm  = options[:algorithm]
+        self.key = options[:key]
+        self.algorithm  = options[:algorithm]
         
         self.private_key_file = options[:private_key_file]
         self.public_key_file  = options[:public_key_file]
@@ -97,7 +97,7 @@ module PluginAWeek #:nodoc:
       
       # Encrypts the given data
       def encrypt(data)
-        raise NoPublicKeyError, "Public key file: #{@public_key_file}" unless public?
+        raise NoPublicKeyError, "Public key file: #{public_key_file}" unless public?
         
         encrypted_data = public_rsa.public_encrypt(data)
         Base64.encode64(encrypted_data)
@@ -105,7 +105,7 @@ module PluginAWeek #:nodoc:
       
       # Decrypts the given data
       def decrypt(data)
-        raise NoPrivateKeyError, "Private key file: #{@private_key_file}" unless private?
+        raise NoPrivateKeyError, "Private key file: #{private_key_file}" unless private?
         
         decrypted_data = Base64.decode64(data)
         private_rsa.private_decrypt(decrypted_data)
@@ -138,36 +138,36 @@ module PluginAWeek #:nodoc:
       end
       
       private
-      def load_private_key
-        @private_rsa = nil
+        def load_private_key
+          @private_rsa = nil
+          
+          if private_key_file && File.file?(private_key_file)
+            @private_key = File.open(private_key_file) {|f| f.read}
+          end
+        end
         
-        if @private_key_file && File.file?(@private_key_file)
-          @private_key = File.open(@private_key_file) {|f| f.read}
+        def load_public_key
+          @public_rsa = nil
+          
+          if public_key_file && File.file?(public_key_file)
+            @public_key = File.open(public_key_file) {|f| f.read}
+          end
         end
-      end
-      
-      def load_public_key
-        @public_rsa = nil
         
-        if @public_key_file && File.file?(@public_key_file)
-          @public_key = File.open(@public_key_file) {|f| f.read}
+        # Retrieves private RSA from the private key
+        def private_rsa
+          if key
+            private_key = @private_key.decrypt(:symmetric, :key => key, :algorithm => algorithm)
+            OpenSSL::PKey::RSA.new(private_key)
+          else
+            @private_rsa ||= OpenSSL::PKey::RSA.new(@private_key)
+          end
         end
-      end
-      
-      # Retrieves private RSA from the private key
-      def private_rsa
-        if @key
-          private_key = @private_key.decrypt(:symmetric, :key => @key, :algorithm => @algorithm)
-          OpenSSL::PKey::RSA.new(private_key)
-        else
-          @private_rsa ||= OpenSSL::PKey::RSA.new(@private_key)
+        
+        # Retrieves the public RSA
+        def public_rsa
+          @public_rsa ||= OpenSSL::PKey::RSA.new(@public_key)
         end
-      end
-      
-      # Retrieves the public RSA
-      def public_rsa
-        @public_rsa ||= OpenSSL::PKey::RSA.new(@public_key)
-      end
     end
   end
 end

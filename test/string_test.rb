@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'test_helper')
+require File.dirname(__FILE__) + '/test_helper'
 
 class EncryptedStringsTest < Test::Unit::TestCase
   def test_should_use_sha_for_default_encryption

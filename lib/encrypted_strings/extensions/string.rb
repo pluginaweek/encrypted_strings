@@ -25,7 +25,7 @@ module PluginAWeek #:nodoc:
         # 
         # The following uses SHA mode to encrypt the string:
         # 
-        #   password = "shhhh"
+        #   password = 'shhhh'
         #   password.encrypt  # => "66c85d26dadde7e1db27e15a0776c921e27143bd"
         # 
         # == Custom encryption mode
@@ -33,8 +33,8 @@ module PluginAWeek #:nodoc:
         # The following uses Symmetric mode (with a default key) to encrypt the
         # string:
         # 
-        #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = "my_key"
-        #   password = "shhhh"
+        #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = 'my_key'
+        #   password = 'shhhh'
         #   password.encrypt(:symmetric)  # => "jDACXI5hMPI=\n"
         # 
         # == Custom encryption options
@@ -43,8 +43,8 @@ module PluginAWeek #:nodoc:
         # that determine how to encrypt the string.  For example, SHA supports
         # a salt which seeds the algorithm:
         # 
-        #   password = "shhhh"
-        #   password.encrypt(:sha, :salt => "secret") # => "3b22cbe4acde873c3efc82681096f3ae69aff828"
+        #   password = 'shhhh'
+        #   password.encrypt(:sha, :salt => 'secret') # => "3b22cbe4acde873c3efc82681096f3ae69aff828"
         def encrypt(*args)
           encryptor = encryptor_from_args(*args)
           encrypted_string = encryptor.encrypt(self)
@@ -57,10 +57,10 @@ module PluginAWeek #:nodoc:
         # takes the same parameters as #encrypt, but returns the same string
         # instead of a different one.
         # 
-        # For example,
+        # == Example
         # 
-        #   password = "shhhh"
-        #   password.encrypt!(:symmetric, :key => "my_key") # => "jDACXI5hMPI=\n"
+        #   password = 'shhhh'
+        #   password.encrypt!(:symmetric, :key => 'my_key') # => "jDACXI5hMPI=\n"
         #   password                                        # => "jDACXI5hMPI=\n"
         def encrypt!(*args)
           encrypted_string = encrypt(*args)
@@ -72,9 +72,9 @@ module PluginAWeek #:nodoc:
         # Is this string encrypted?  This will return true if the string is the
         # result of a call to #encrypt or #encrypt! was previously invoked.
         # 
-        # For example,
+        # == Example
         # 
-        #   password = "shhhh"
+        #   password = 'shhhh'
         #   password.encrypted? # => false
         #   password.encrypt!   # => "66c85d26dadde7e1db27e15a0776c921e27143bd"
         #   password.encrypted? # => true
@@ -85,8 +85,13 @@ module PluginAWeek #:nodoc:
         # Decrypts this string.  If this is not a string that was previously encrypted,
         # the encryption algorithm must be specified in the same way the
         # algorithm is specified when encrypting a string.
+        # 
+        # == Example
+        # 
+        #   password = "jDACXI5hMPI=\n"
+        #   password.decrypt(:symmetric, :key => 'my_key')  # => "shhhh"
         def decrypt(*args)
-          raise ArgumentError, "An encrypt algorithm must be specified since we can't figure it out" if args.empty? && !@encryptor
+          raise ArgumentError, "An encryption algorithm must be specified since we can't figure it out" if args.empty? && !@encryptor
           
           encryptor = args.any? ? encryptor_from_args(*args) : (@encryptor || encryptor_from_args(*args))
           encrypted_string = encryptor.decrypt(self)
@@ -102,7 +107,7 @@ module PluginAWeek #:nodoc:
         # For example,
         # 
         #   password = "jDACXI5hMPI=\n"
-        #   password.decrypt!(:symmetric, :key => "my_key") # => "shhhh"
+        #   password.decrypt!(:symmetric, :key => 'my_key') # => "shhhh"
         #   password                                        # => "shhhh"
         def decrypt!(*args)
           replace(decrypt(*args))
@@ -122,55 +127,68 @@ module PluginAWeek #:nodoc:
         # 
         # == Equality with strings
         # 
-        #   password = "shhhh"
+        #   password = 'shhhh'
         #   password.encrypt!   # => "66c85d26dadde7e1db27e15a0776c921e27143bd"
         #   password            # => "66c85d26dadde7e1db27e15a0776c921e27143bd"
         #   password == "shhhh" # => true
         # 
         # == Equality with encrypted strings
         # 
-        #   password = "shhhh"
+        #   password = 'shhhh'
         #   password.encrypt!             # => "66c85d26dadde7e1db27e15a0776c921e27143bd"
         #   password                      # => "66c85d26dadde7e1db27e15a0776c921e27143bd"
-        #   password == "shhhh"           # => true
+        #   password == 'shhhh'           # => true
         #   
-        #   another_password = "shhhh"
+        #   another_password = 'shhhh'
         #   another_password.encrypt!     # => "66c85d26dadde7e1db27e15a0776c921e27143bd"
         #   password == another_password  # => true
         def equals_with_encryption(other)
           if !(is_equal = equals_without_encryption(other)) && String === other
             if encrypted?
               if other.encrypted?
+                # We're both encrypted, so check if:
+                # (1) The other string is the encrypted value of this string
+                # (2) This string is the encrypted value of the other string
+                # (3) The other string is the encrypted value of this string, decrypted
+                # (4) This string is the encrypted value of the other string, decrypted
                 is_string_equal?(self, other) || is_string_equal?(other, self) || self.can_decrypt? && is_string_equal?(self.decrypt, other) || other.can_decrypt? && is_string_equal?(other.decrypt, self)
               else
+                # Only we're encrypted
                 is_string_equal?(other, self)
               end
             else
               if other.encrypted?
+                # Only the other string is encrypted
                 is_string_equal?(self, other)
               else
+                # Neither are encrypted and equality test didn't work before, so
+                # they can't be equal
                 false
               end
             end
           else
+            # The other value wasn't a string, so we can't check encryption equality
             is_equal
           end
         end
         
         private
-        def is_string_equal?(value, encrypted_value) #:nodoc:
-          if encrypted_value.can_decrypt?
-            encrypted_value.decrypt.equals_without_encryption(value)
-          else
-            encrypted_value.equals_without_encryption(encrypted_value.encryptor.encrypt(value))
+          def is_string_equal?(value, encrypted_value) #:nodoc:
+            # If the encrypted value can be decrypted, then test against the decrypted value
+            if encrypted_value.can_decrypt?
+              encrypted_value.decrypt.equals_without_encryption(value)
+            else
+              # Otherwise encrypt this value based on the encryptor used on the encrypted value
+              # and test the equality of those strings
+              encrypted_value.equals_without_encryption(encrypted_value.encryptor.encrypt(value))
+            end
           end
-        end
-        
-        def encryptor_from_args(*args) #:nodoc:
-          options = args.last.is_a?(::Hash) ? args.pop : {}
-          mode = (args.first || :sha).to_sym
-          "PluginAWeek::EncryptedStrings::#{mode.to_s.classify}Encryptor".constantize.new(options)
-        end
+          
+          def encryptor_from_args(*args) #:nodoc:
+            options = args.last.is_a?(Hash) ? args.pop : {}
+            mode = (args.first || :sha).to_sym
+            "PluginAWeek::EncryptedStrings::#{mode.to_s.classify}Encryptor".constantize.new(options)
+          end
       end
     end
   end
