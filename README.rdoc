@@ -4,21 +4,21 @@
 
 == Resources
 
-Wiki
-
-* http://wiki.pluginaweek.org/Encrypted_strings
-
 API
 
 * http://api.pluginaweek.org/encrypted_strings
 
+Bugs
+
+* http://pluginaweek.lighthouseapp.com/projects/13270-encrypted_strings
+
 Development
 
-* http://dev.pluginaweek.org/browse/trunk/encrypted_strings
+* http://github.com/pluginaweek/encrypted_strings
 
 Source
 
-* http://svn.pluginaweek.org/trunk/encrypted_strings
+* git://github.com/pluginaweek/encrypted_strings.git
 
 == Description
 
@@ -85,4 +85,4 @@ None.
 
 == References
 
-* Rick Olson - sentry[http://svn.techno-weenie.net/projects/plugins/sentry]
+* Rick Olson - sentry[http://github.com/technoweenie/sentry]
