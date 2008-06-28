@@ -1,23 +1,20 @@
-*SVN*
+== master
 
-*0.0.4* (May 5th, 2008)
+== 0.0.4 / 2008-05-05
 
 * Updated documentation
 
-*0.0.3* (September 18th, 2007)
+== 0.0.3 / 2007-09-18
 
 * Remove gem dependency on activesupport
 
-*0.0.2* (August 23rd, 2007)
+== 0.0.2 / 2007-08-23
 
 * Fix not allowing the decryption mode to be overriden if the string already has an encryptor
-
 * Convert dos newlines to unix newlines
 
-*0.0.1* (August 5th, 2007)
+== 0.0.1 / 2007-08-05
 
 * Official public release
-
 * Add api documentation
-
 * Refactor unit test names
