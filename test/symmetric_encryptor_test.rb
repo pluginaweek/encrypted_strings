@@ -1,36 +1,66 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-class SymmetricallyEncryptedStringTest < Test::Unit::TestCase
+class SymmetricEncryptorByDefaultTest < Test::Unit::TestCase
   def setup
-    @data = 'test'
-    @key = 'secret'
-    @encrypted = "MU6e/5LvhKA=\n"
+    PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = 'secret'
+    @symmetric_encryptor = PluginAWeek::EncryptedStrings::SymmetricEncryptor.new
+  end
+  
+  def test_should_use_the_default_key
+    assert_equal 'secret', @symmetric_encryptor.key
+  end
+  
+  def test_should_use_the_default_algorithm
+    assert_equal 'DES-EDE3-CBC', @symmetric_encryptor.algorithm
+  end
+  
+  def test_should_encrypt_using_the_default_configuration
+    assert_equal "MU6e/5LvhKA=\n", @symmetric_encryptor.encrypt('test')
+  end
+  
+  def test_should_decrypt_encrypted_string_using_the_default_configuration
+    assert_equal 'test', @symmetric_encryptor.decrypt("MU6e/5LvhKA=\n")
+  end
+  
+  def teardown
     PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = nil
   end
-  
-  def test_should_raise_exception_if_no_key_specified
-    assert_raises(PluginAWeek::EncryptedStrings::NoKeyError) { PluginAWeek::EncryptedStrings::SymmetricEncryptor.new }
+end
+
+class SymmetricEncryptorWithInvalidOptionsTest < Test::Unit::TestCase
+  def test_should_throw_an_exception
+    assert_raise(ArgumentError) {PluginAWeek::EncryptedStrings::SymmetricEncryptor.new(:invalid => true)}
   end
-  
-  def test_encrypt_with_default_key_if_key_not_specified
-    PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = @key
-    assert_equal @encrypted, PluginAWeek::EncryptedStrings::SymmetricEncryptor.new.encrypt(@data)
-  end
-  
-  def test_should_encrypt_with_custom_key_if_key_specified
-    assert_equal @encrypted, PluginAWeek::EncryptedStrings::SymmetricEncryptor.new(:key => @key).encrypt(@data)
+end
+
+class SymmetricEncryptorTest < Test::Unit::TestCase
+  def setup
+    @symmetric_encryptor = PluginAWeek::EncryptedStrings::SymmetricEncryptor.new(:key => 'secret')
   end
   
   def test_should_be_able_to_decrypt
-    assert PluginAWeek::EncryptedStrings::SymmetricEncryptor.new(:key => @key).can_decrypt?
+    assert @symmetric_encryptor.can_decrypt?
+  end
+end
+
+class SymmetricEncryptorWithCustomOptionsTest < Test::Unit::TestCase
+  def setup
+    @symmetric_encryptor = PluginAWeek::EncryptedStrings::SymmetricEncryptor.new(:key => 'secret', :algorithm => 'DES-EDE3-CFB')
   end
   
-  def test_should_decrypt_encrypted_string_with_custom_key_if_key_specified
-    assert_equal @data, PluginAWeek::EncryptedStrings::SymmetricEncryptor.new(:key => @key).decrypt(@encrypted)
+  def test_should_use_custom_key
+    assert_equal 'secret', @symmetric_encryptor.key
   end
   
-  def test_should_decrypt_encrypted_string_with_default_key_if_key_not_specified
-    PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = @key
-    assert_equal @data, PluginAWeek::EncryptedStrings::SymmetricEncryptor.new.decrypt(@encrypted)
+  def test_should_use_custom_algorithm
+    assert_equal 'DES-EDE3-CFB', @symmetric_encryptor.algorithm
+  end
+  
+  def test_should_encrypt_using_custom_options
+    assert_equal "C7D9mg==\n", @symmetric_encryptor.encrypt('test')
+  end
+  
+  def test_should_decrypt_using_custom_options
+    assert_equal 'test', @symmetric_encryptor.decrypt("C7D9mg==\n")
   end
 end

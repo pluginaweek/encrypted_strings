@@ -110,7 +110,9 @@ module PluginAWeek #:nodoc:
         #   password.decrypt!(:symmetric, :key => 'my_key') # => "shhhh"
         #   password                                        # => "shhhh"
         def decrypt!(*args)
-          replace(decrypt(*args))
+          value = replace(decrypt(*args))
+          self.encryptor = nil
+          value
         end
         
         # Can this string be decrypted?  Strings can only be decrypted if they

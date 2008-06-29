@@ -1,16 +1,28 @@
 require File.dirname(__FILE__) + '/test_helper'
 
+class ShaEncryptorByDefaulTest < Test::Unit::TestCase
+  def setup
+    @sha_encryptor = PluginAWeek::EncryptedStrings::ShaEncryptor.new
+  end
+  
+  def test_should_use_default_salt
+    assert_equal 'salt', @sha_encryptor.salt
+  end
+  
+  def test_should_encrypt_using_default_salt
+    assert_equal 'f438229716cab43569496f3a3630b3727524b81b', @sha_encryptor.encrypt('test')
+  end
+end
+
+class ShaEncryptorWithInvalidOptionsTest < Test::Unit::TestCase
+  def test_should_throw_an_exception
+    assert_raise(ArgumentError) {PluginAWeek::EncryptedStrings::ShaEncryptor.new(:invalid => true)}
+  end
+end
+
 class ShaEncryptorTest < Test::Unit::TestCase
   def setup
-    PluginAWeek::EncryptedStrings::ShaEncryptor.default_salt = 'salt'
-  end
-  
-  def test_should_encrypt_with_default_salt_if_salt_not_specified
-    assert_equal 'f438229716cab43569496f3a3630b3727524b81b', PluginAWeek::EncryptedStrings::ShaEncryptor.new.encrypt('test')
-  end
-  
-  def test_should_encrypt_with_custom_salt_if_salt_specified
-    assert_equal '18e3256d71529db8fa65b2eef24a69ddad7070f3', PluginAWeek::EncryptedStrings::ShaEncryptor.new(:salt => 'different salt').encrypt('test')
+    @sha_encryptor = PluginAWeek::EncryptedStrings::ShaEncryptor.new
   end
   
   def test_should_not_be_able_to_decrypt
@@ -19,5 +31,19 @@ class ShaEncryptorTest < Test::Unit::TestCase
   
   def test_should_raise_exception_if_trying_to_decrypt
     assert_raises(NotImplementedError) {PluginAWeek::EncryptedStrings::ShaEncryptor.new.decrypt('test')}
+  end
+end
+
+class ShaEncryptorWithCustomSaltTest < Test::Unit::TestCase
+  def setup
+    @sha_encryptor = PluginAWeek::EncryptedStrings::ShaEncryptor.new(:salt => 'different salt')
+  end
+  
+  def test_should_use_custom_salt
+    assert_equal 'different salt', @sha_encryptor.salt
+  end
+  
+  def test_should_encrypt_using_custom_salt
+    assert_equal '18e3256d71529db8fa65b2eef24a69ddad7070f3', @sha_encryptor.encrypt('test')
   end
 end

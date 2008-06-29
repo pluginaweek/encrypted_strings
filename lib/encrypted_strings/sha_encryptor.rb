@@ -39,8 +39,9 @@ module PluginAWeek #:nodoc:
       def initialize(options = {})
         options = options.symbolize_keys
         options.assert_valid_keys(:salt)
-        options.reverse_merge!(:salt => @@default_salt)
-        @salt = options[:salt]
+        options.reverse_merge!(:salt => self.class.default_salt)
+        
+        self.salt = options[:salt]
         
         super()
       end

@@ -44,7 +44,7 @@ module PluginAWeek #:nodoc:
     # default values will be used.  You can override the default values like so:
     # 
     #   password = "INy95irZ8AlHmvc6ZAF/ARsTpbqPIB/4bEAKKOebjsayB7NYWtIzpswvzxqf\nNJ5yyuvxfMODrcg7RimEMFkFlg==\n"
-    #   password.decrypt(:asymmetric, :public_key_file => "./encrypted_private.key", :key => "secret") # => "shhhh"
+    #   password.decrypt(:asymmetric, :public_key_file => "./encrypted_public.key", :key => "secret") # => "shhhh"
     # 
     # An exception will be raised if either the private key file could not be
     # found or the key could not decrypt the private key file.
@@ -80,15 +80,15 @@ module PluginAWeek #:nodoc:
           :algorithm
         )
         options.reverse_merge!(
-          :private_key_file => @@default_private_key_file,
-          :public_key_file => @@default_public_key_file,
-          :algorithm => @@default_algorithm
+          :private_key_file => self.class.default_private_key_file,
+          :public_key_file => self.class.default_public_key_file,
+          :algorithm => self.class.default_algorithm
         )
         
         @public_key = @private_key = nil
+        
         self.key = options[:key]
         self.algorithm  = options[:algorithm]
-        
         self.private_key_file = options[:private_key_file]
         self.public_key_file  = options[:public_key_file]
         
@@ -123,7 +123,7 @@ module PluginAWeek #:nodoc:
       
       # Is this string encrypted using a public key?
       def public?
-        return true unless @public_key.nil?
+        return true if @public_key
         
         load_public_key
         !@public_key.nil?
@@ -131,7 +131,7 @@ module PluginAWeek #:nodoc:
       
       # Is this string encrypted using a private key?
       def private?
-        return true unless @private_key.nil?
+        return true if @private_key
         
         load_private_key
         !@private_key.nil?

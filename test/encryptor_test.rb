@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-class EncryptorTest < Test::Unit::TestCase
+class EncryptorByDefaultTest < Test::Unit::TestCase
   def setup
     @encryptor = PluginAWeek::EncryptedStrings::Encryptor.new
   end

@@ -59,8 +59,8 @@ module PluginAWeek #:nodoc:
           :key,
           :algorithm
         )
-        options.reverse_merge!(:key => @@default_key)
-        options[:algorithm] ||= @@default_algorithm
+        options.reverse_merge!(:key => self.class.default_key)
+        options[:algorithm] ||= self.class.default_algorithm
         
         self.key = options[:key]
         raise NoKeyError if key.nil?
