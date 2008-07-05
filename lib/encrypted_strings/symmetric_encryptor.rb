@@ -47,7 +47,10 @@ module PluginAWeek #:nodoc:
       @@default_key = nil
       cattr_accessor :default_key
       
+      # The algorithm to use for encryption/decryption
       attr_accessor :algorithm
+      
+      # The private key that seeds the algorithm
       attr_accessor :key
       
       # Configuration options:

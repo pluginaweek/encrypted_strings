@@ -1,7 +1,8 @@
 module PluginAWeek #:nodoc:
   module EncryptedStrings
-    # Represents an encryptor for strings.  Certain encryption algorithms
-    # do not allow for strings to be decrypted.
+    # Represents the base class for all encryptors.  By default, all encryptors
+    # are assumed to be able to decrypt strings.  Note, however, that certain
+    # encryption algorithms do not allow decryption.
     class Encryptor
       # Can this string be decrypted?  Default is true.
       def can_decrypt?

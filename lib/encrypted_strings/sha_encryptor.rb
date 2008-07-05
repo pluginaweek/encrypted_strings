@@ -32,6 +32,7 @@ module PluginAWeek #:nodoc:
       @@default_salt = 'salt'
       cattr_accessor :default_salt
       
+      # The salt value to use for encryption
       attr_accessor :salt
       
       # Configuration options:
@@ -46,7 +47,7 @@ module PluginAWeek #:nodoc:
         super()
       end
       
-      # Decryption is not supported.
+      # Decryption is not supported
       def can_decrypt?
         false
       end

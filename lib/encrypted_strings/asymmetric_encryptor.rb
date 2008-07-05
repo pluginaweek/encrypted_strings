@@ -61,9 +61,16 @@ module PluginAWeek #:nodoc:
       @@default_algorithm = nil
       cattr_accessor :default_algorithm
       
-      attr_reader   :private_key_file
-      attr_reader   :public_key_file
+      # Private key used for decrypting data
+      attr_reader :private_key_file
+      
+      # Public key used for encrypting data
+      attr_reader :public_key_file
+      
+      # The algorithm to use if the key files are encrypted themselves
       attr_accessor :algorithm
+      
+      # The key used during symmetric decryption of the key files
       attr_accessor :key
       
       # Configuration options:
@@ -95,7 +102,8 @@ module PluginAWeek #:nodoc:
         super()
       end
       
-      # Encrypts the given data
+      # Encrypts the given data. If no public key file has been specified, then
+      # a NoPublicKeyError will be raised.
       def encrypt(data)
         raise NoPublicKeyError, "Public key file: #{public_key_file}" unless public?
         
@@ -103,7 +111,8 @@ module PluginAWeek #:nodoc:
         Base64.encode64(encrypted_data)
       end
       
-      # Decrypts the given data
+      # Decrypts the given data. If no private key file has been specified, then
+      # a NoPrivateKeyError will be raised.
       def decrypt(data)
         raise NoPrivateKeyError, "Private key file: #{private_key_file}" unless private?
         
@@ -121,7 +130,7 @@ module PluginAWeek #:nodoc:
         @public_key_file = file and load_public_key
       end
       
-      # Is this string encrypted using a public key?
+      # Does this encryptor have a public key available?
       def public?
         return true if @public_key
         
@@ -129,7 +138,7 @@ module PluginAWeek #:nodoc:
         !@public_key.nil?
       end
       
-      # Is this string encrypted using a private key?
+      # Does this encryptor have a private key available?
       def private?
         return true if @private_key
         
@@ -138,6 +147,7 @@ module PluginAWeek #:nodoc:
       end
       
       private
+        # Loads the private key from the configured file
         def load_private_key
           @private_rsa = nil
           
@@ -146,6 +156,7 @@ module PluginAWeek #:nodoc:
           end
         end
         
+        # Loads the public key from the configured file
         def load_public_key
           @public_rsa = nil
           
@@ -154,7 +165,7 @@ module PluginAWeek #:nodoc:
           end
         end
         
-        # Retrieves private RSA from the private key
+        # Retrieves the private RSA from the private key
         def private_rsa
           if key
             private_key = @private_key.decrypt(:symmetric, :key => key, :algorithm => algorithm)
