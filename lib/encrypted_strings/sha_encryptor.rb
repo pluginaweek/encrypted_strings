@@ -42,7 +42,7 @@ module PluginAWeek #:nodoc:
         options.assert_valid_keys(:salt)
         options.reverse_merge!(:salt => self.class.default_salt)
         
-        self.salt = options[:salt]
+        self.salt = options[:salt].to_s
         
         super()
       end

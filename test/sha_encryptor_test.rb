@@ -47,3 +47,13 @@ class ShaEncryptorWithCustomSaltTest < Test::Unit::TestCase
     assert_equal '18e3256d71529db8fa65b2eef24a69ddad7070f3', @sha_encryptor.encrypt('test')
   end
 end
+
+class ShaEncryptorWithNonStringSaltTest < Test::Unit::TestCase
+  def setup
+    @sha_encryptor = PluginAWeek::EncryptedStrings::ShaEncryptor.new(:salt => Time.parse('Tue Jan 01 00:00:00 UTC 2008'))
+  end
+  
+  def test_should_stringify_salt
+    assert_equal 'Tue Jan 01 00:00:00 UTC 2008', @sha_encryptor.salt
+  end
+end

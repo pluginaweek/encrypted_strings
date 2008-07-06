@@ -1,5 +1,6 @@
 == master
 
+* Add automatic stringification of salts for SHA encryption
 * Fix not resetting the encryptor after calling decrypt!
 
 == 0.0.4 / 2008-05-05
