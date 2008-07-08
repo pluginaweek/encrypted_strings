@@ -1,5 +1,9 @@
 == master
 
+== 0.1.0 / 2008-07-06
+
+* Remove dependency on active_support
+
 == 0.0.5 / 2008-07-05
 
 * Add automatic stringification of salts for SHA encryption

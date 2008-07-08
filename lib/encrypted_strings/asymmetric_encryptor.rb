@@ -50,16 +50,16 @@ module PluginAWeek #:nodoc:
     # found or the key could not decrypt the private key file.
     class AsymmetricEncryptor < Encryptor
       # The default private key to use during encryption.  Default is nil.
-      @@default_private_key_file = nil
-      cattr_accessor :default_private_key_file
+      @default_private_key_file = nil
+      class << self; attr_accessor :default_private_key_file; end
       
       # The default public key to use during encryption.  Default is nil.
-      @@default_public_key_file = nil
-      cattr_accessor :default_public_key_file
+      @default_public_key_file = nil
+      class << self; attr_accessor :default_public_key_file; end
       
       # The default algorithm to use.  Default is nil.
-      @@default_algorithm = nil
-      cattr_accessor :default_algorithm
+      @default_algorithm = nil
+      class << self; attr_accessor :default_algorithm; end
       
       # Private key used for decrypting data
       attr_reader :private_key_file
@@ -79,18 +79,14 @@ module PluginAWeek #:nodoc:
       # * +key+ - The key to use in the symmetric encryptor
       # * +algorithm+ - Algorithm to use symmetrically encrypted strings
       def initialize(options = {})
-        options = options.symbolize_keys
-        options.assert_valid_keys(
-          :private_key_file,
-          :public_key_file,
-          :key,
-          :algorithm
-        )
-        options.reverse_merge!(
-          :private_key_file => self.class.default_private_key_file,
-          :public_key_file => self.class.default_public_key_file,
-          :algorithm => self.class.default_algorithm
-        )
+        invalid_options = options.keys - [:private_key_file, :public_key_file, :key, :algorithm]
+        raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
+        
+        options = {
+          :private_key_file => AsymmetricEncryptor.default_private_key_file,
+          :public_key_file => AsymmetricEncryptor.default_public_key_file,
+          :algorithm => AsymmetricEncryptor.default_algorithm
+        }.merge(options)
         
         @public_key = @private_key = nil
         

@@ -188,8 +188,8 @@ module PluginAWeek #:nodoc:
           
           def encryptor_from_args(*args) #:nodoc:
             options = args.last.is_a?(Hash) ? args.pop : {}
-            mode = (args.first || :sha).to_sym
-            "PluginAWeek::EncryptedStrings::#{mode.to_s.classify}Encryptor".constantize.new(options)
+            mode = (args.first || :sha).to_s.gsub(/(?:^|_)(.)/) {$1.upcase}
+            PluginAWeek::EncryptedStrings.const_get("#{mode}Encryptor").new(options)
           end
       end
     end

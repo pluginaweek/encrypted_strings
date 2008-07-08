@@ -5,7 +5,7 @@ require 'rake/contrib/sshpublisher'
 
 spec = Gem::Specification.new do |s|
   s.name              = 'encrypted_strings'
-  s.version           = '0.0.5'
+  s.version           = '0.1.0'
   s.platform          = Gem::Platform::RUBY
   s.summary           = 'Dead-simple string encryption/decryption syntax.'
   

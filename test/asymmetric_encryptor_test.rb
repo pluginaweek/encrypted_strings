@@ -18,7 +18,7 @@ class AsymmetricEncryptorByDefaultTest < Test::Unit::TestCase
   end
   
   def test_should_use_the_default_algorithm
-    assert_equal 'DES-EDE3-CBC', @asymmetric_encryptor.default_algorithm
+    assert_equal 'DES-EDE3-CBC', @asymmetric_encryptor.algorithm
   end
   
   def test_should_not_have_a_key

@@ -40,12 +40,12 @@ module PluginAWeek #:nodoc:
     # An exception will be raised if no key is specified.
     class SymmetricEncryptor < Encryptor
       # The default algorithm to use for encryption.  Default is DES
-      @@default_algorithm = 'DES-EDE3-CBC'
-      cattr_accessor :default_algorithm
+      @default_algorithm = 'DES-EDE3-CBC'
+      class << self; attr_accessor :default_algorithm; end
       
       # The default key to use.  Default is nil
-      @@default_key = nil
-      cattr_accessor :default_key
+      @default_key = nil
+      class << self; attr_accessor :default_key; end
       
       # The algorithm to use for encryption/decryption
       attr_accessor :algorithm
@@ -57,13 +57,13 @@ module PluginAWeek #:nodoc:
       # * +key+ - Private key
       # * +algorithm+ - Algorithm to use
       def initialize(options = {})
-        options = options.symbolize_keys
-        options.assert_valid_keys(
-          :key,
-          :algorithm
-        )
-        options.reverse_merge!(:key => self.class.default_key)
-        options[:algorithm] ||= self.class.default_algorithm
+        invalid_options = options.keys - [:key, :algorithm]
+        raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
+        
+        options = {
+          :key => SymmetricEncryptor.default_key,
+          :algorithm => SymmetricEncryptor.default_algorithm
+        }.merge(options)
         
         self.key = options[:key]
         raise NoKeyError if key.nil?

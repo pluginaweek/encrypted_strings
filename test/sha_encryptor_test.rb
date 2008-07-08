@@ -49,6 +49,8 @@ class ShaEncryptorWithCustomSaltTest < Test::Unit::TestCase
 end
 
 class ShaEncryptorWithNonStringSaltTest < Test::Unit::TestCase
+  require 'time'
+  
   def setup
     @sha_encryptor = PluginAWeek::EncryptedStrings::ShaEncryptor.new(:salt => Time.parse('Tue Jan 01 00:00:00 UTC 2008'))
   end

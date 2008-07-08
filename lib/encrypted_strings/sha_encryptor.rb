@@ -29,8 +29,8 @@ module PluginAWeek #:nodoc:
     #   password == input                                   # => true
     class ShaEncryptor < Encryptor
       # The default salt value to use during encryption
-      @@default_salt = 'salt'
-      cattr_accessor :default_salt
+      @default_salt = 'salt'
+      class << self; attr_accessor :default_salt; end
       
       # The salt value to use for encryption
       attr_accessor :salt
@@ -38,9 +38,10 @@ module PluginAWeek #:nodoc:
       # Configuration options:
       # * +salt+ - Salt value to use for encryption
       def initialize(options = {})
-        options = options.symbolize_keys
-        options.assert_valid_keys(:salt)
-        options.reverse_merge!(:salt => self.class.default_salt)
+        invalid_options = options.keys - [:salt]
+        raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
+        
+        options = {:salt => ShaEncryptor.default_salt}.merge(options)
         
         self.salt = options[:salt].to_s
         
