@@ -148,7 +148,7 @@ module PluginAWeek #:nodoc:
           @private_rsa = nil
           
           if private_key_file && File.file?(private_key_file)
-            @private_key = File.open(private_key_file) {|f| f.read}
+            @private_key = File.read(private_key_file)
           end
         end
         
@@ -157,7 +157,7 @@ module PluginAWeek #:nodoc:
           @public_rsa = nil
           
           if public_key_file && File.file?(public_key_file)
-            @public_key = File.open(public_key_file) {|f| f.read}
+            @public_key = File.read(public_key_file)
           end
         end
         
