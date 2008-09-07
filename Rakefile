@@ -9,7 +9,7 @@ spec = Gem::Specification.new do |s|
   s.platform          = Gem::Platform::RUBY
   s.summary           = 'Dead-simple string encryption/decryption syntax.'
   
-  s.files             = FileList['{lib,test}/**/*'].to_a + %w(CHANGELOG.rdoc init.rb LICENSE Rakefile README.rdoc)
+  s.files             = FileList['{lib,test}/**/*'] + %w(CHANGELOG.rdoc init.rb LICENSE Rakefile README.rdoc)
   s.require_path      = 'lib'
   s.has_rdoc          = true
   s.test_files        = Dir['test/**/*_test.rb']
