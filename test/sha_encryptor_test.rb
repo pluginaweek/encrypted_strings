@@ -14,6 +14,26 @@ class ShaEncryptorByDefaulTest < Test::Unit::TestCase
   end
 end
 
+class ShaEncryptorWithCustomDefaultsTest < Test::Unit::TestCase
+  def setup
+    @original_default_salt = PluginAWeek::EncryptedStrings::ShaEncryptor.default_salt
+    PluginAWeek::EncryptedStrings::ShaEncryptor.default_salt = 'custom_salt'
+    @sha_encryptor = PluginAWeek::EncryptedStrings::ShaEncryptor.new
+  end
+  
+  def test_should_use_custom_default_salt
+    assert_equal 'custom_salt', @sha_encryptor.salt
+  end
+  
+  def test_should_encrypt_using_custom_default_salt
+    assert_equal '280f3c516070b09aa3eb755378509c725a9c6561', @sha_encryptor.encrypt('test')
+  end
+  
+  def teardown
+    PluginAWeek::EncryptedStrings::ShaEncryptor.default_salt = @original_default_salt
+  end
+end
+
 class ShaEncryptorWithInvalidOptionsTest < Test::Unit::TestCase
   def test_should_throw_an_exception
     assert_raise(ArgumentError) {PluginAWeek::EncryptedStrings::ShaEncryptor.new(:invalid => true)}
@@ -34,7 +54,7 @@ class ShaEncryptorTest < Test::Unit::TestCase
   end
 end
 
-class ShaEncryptorWithCustomSaltTest < Test::Unit::TestCase
+class ShaEncryptorWithCustomOptionsTest < Test::Unit::TestCase
   def setup
     @sha_encryptor = PluginAWeek::EncryptedStrings::ShaEncryptor.new(:salt => 'different salt')
   end

@@ -1,5 +1,9 @@
 == master
 
+* Fix non-compliant PKCS #5 algorithm being used for symmetric encryption. Use :pkcs5_compliant => true for better security.
+* Rename SymmetricEncryptor#key to #password
+* Fix deprecation messages for Cipher#encrypt/decrypt
+
 == 0.1.0 / 2008-07-06
 
 * Remove dependency on active_support

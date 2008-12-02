@@ -60,7 +60,7 @@ module PluginAWeek #:nodoc:
         # == Example
         # 
         #   password = 'shhhh'
-        #   password.encrypt!(:symmetric, :key => 'my_key') # => "jDACXI5hMPI=\n"
+        #   password.encrypt!(:symmetric, :password => 'my_key') # => "jDACXI5hMPI=\n"
         #   password                                        # => "jDACXI5hMPI=\n"
         def encrypt!(*args)
           encrypted_string = encrypt(*args)
@@ -89,7 +89,7 @@ module PluginAWeek #:nodoc:
         # == Example
         # 
         #   password = "jDACXI5hMPI=\n"
-        #   password.decrypt(:symmetric, :key => 'my_key')  # => "shhhh"
+        #   password.decrypt(:symmetric, :password => 'my_key')  # => "shhhh"
         def decrypt(*args)
           raise ArgumentError, "An encryption algorithm must be specified since we can't figure it out" if args.empty? && !@encryptor
           
@@ -107,7 +107,7 @@ module PluginAWeek #:nodoc:
         # For example,
         # 
         #   password = "jDACXI5hMPI=\n"
-        #   password.decrypt!(:symmetric, :key => 'my_key') # => "shhhh"
+        #   password.decrypt!(:symmetric, :password => 'my_key') # => "shhhh"
         #   password                                        # => "shhhh"
         def decrypt!(*args)
           value = replace(decrypt(*args))

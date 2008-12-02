@@ -57,7 +57,7 @@ the resulting encrypted value is the same.
 
   >> password = "shhhh"
   => "shhhh"
-  >> crypted_password = password.encrypt(:symmetric, :key => "my_key")
+  >> crypted_password = password.encrypt(:symmetric, :password => "secret_key")
   => "jDACXI5hMPI=\n"
   >> crypted_password.class
   => String

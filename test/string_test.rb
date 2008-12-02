@@ -26,7 +26,7 @@ end
 
 class StringWithCustomEncryptor
   def setup
-    @encrypted_string = 'test'.encrypt(:symmetric, :key => 'key')
+    @encrypted_string = 'test'.encrypt(:symmetric, :password => 'key')
   end
   
   def test_should_use_custom_encryptor
@@ -83,7 +83,7 @@ end
 
 class StringAfterBeingDecryptedTest < Test::Unit::TestCase
   def setup
-    @encrypted_string = 'test'.encrypt(:symmetric, :key => 'secret')
+    @encrypted_string = 'test'.encrypt(:symmetric, :password => 'secret')
     @decrypted_string = @encrypted_string.decrypt
   end
   
@@ -98,7 +98,7 @@ end
 
 class StringAfterBeingDecryptedAndReplacedTest < Test::Unit::TestCase
   def setup
-    @encrypted_string = 'test'.encrypt(:symmetric, :key => 'secret')
+    @encrypted_string = 'test'.encrypt(:symmetric, :password => 'secret')
     @encrypted_string.decrypt!
   end
   
@@ -163,7 +163,7 @@ end
 
 class StringWithDecryptableEncryptorTest < Test::Unit::TestCase
   def setup
-    @encrypted_string = 'test'.encrypt(:symmetric, :key => 'secret')
+    @encrypted_string = 'test'.encrypt(:symmetric, :password => 'secret')
   end
   
   def test_should_be_able_to_decrypt
@@ -180,7 +180,7 @@ class StringWithDecryptableEncryptorTest < Test::Unit::TestCase
   end
   
   def test_should_be_able_to_check_equality_with_encrypted_value_of_encrypted_string
-    encrypted_encrypted_string = @encrypted_string.encrypt(:symmetric, :key => 'secret')
+    encrypted_encrypted_string = @encrypted_string.encrypt(:symmetric, :password => 'secret')
     
     assert_equal @encrypted_string, encrypted_encrypted_string
     assert_equal encrypted_encrypted_string, @encrypted_string
@@ -192,7 +192,7 @@ class StringWithDecryptableEncryptorTest < Test::Unit::TestCase
   end
   
   def test_should_not_be_able_to_check_equality_more_than_one_encryption_away
-    encrypted_encrypted_string = @encrypted_string.encrypt(:symmetric, :key => 'secret')
+    encrypted_encrypted_string = @encrypted_string.encrypt(:symmetric, :password => 'secret')
     
     assert_not_equal 'test', encrypted_encrypted_string
     assert_not_equal encrypted_encrypted_string, 'test'
@@ -217,6 +217,6 @@ class StringPreviouslyEncryptedTest < Test::Unit::TestCase
   end
   
   def test_should_be_able_to_decrypt_with_custom_mode
-    assert_equal 'test', @encrypted_string.decrypt(:symmetric, :key => 'secret')
+    assert_equal 'test', @encrypted_string.decrypt(:symmetric, :password => 'secret')
   end
 end

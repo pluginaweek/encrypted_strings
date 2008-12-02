@@ -28,9 +28,13 @@ module PluginAWeek #:nodoc:
     #   input = "shhhh".encrypt(:sha, :salt => "secret")    # => "3b22cbe4acde873c3efc82681096f3ae69aff828"
     #   password == input                                   # => true
     class ShaEncryptor < Encryptor
-      # The default salt value to use during encryption
+      class << self
+        # The default salt value to use during encryption
+        attr_accessor :default_salt
+      end
+      
+      # Set defaults
       @default_salt = 'salt'
-      class << self; attr_accessor :default_salt; end
       
       # The salt value to use for encryption
       attr_accessor :salt

@@ -38,28 +38,32 @@ module PluginAWeek #:nodoc:
     # 
     #   PluginAWeek::EncryptedStrings::AsymmetricEncryptor.default_private_key_file = "./private.key"
     #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_algorithm = "DES-EDE3-CBC"
-    #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = "secret_key"
+    #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_password = "secret"
     # 
     # If these configuration options are not passed in to #decrypt, then the
     # default values will be used.  You can override the default values like so:
     # 
     #   password = "INy95irZ8AlHmvc6ZAF/ARsTpbqPIB/4bEAKKOebjsayB7NYWtIzpswvzxqf\nNJ5yyuvxfMODrcg7RimEMFkFlg==\n"
-    #   password.decrypt(:asymmetric, :public_key_file => "./encrypted_public.key", :key => "secret") # => "shhhh"
+    #   password.decrypt(:asymmetric, :public_key_file => "./encrypted_public.key", :password => "secret") # => "shhhh"
     # 
     # An exception will be raised if either the private key file could not be
     # found or the key could not decrypt the private key file.
     class AsymmetricEncryptor < Encryptor
-      # The default private key to use during encryption.  Default is nil.
+      class << self
+        # The default private key to use during encryption.  Default is nil.
+        attr_accessor :default_private_key_file
+        
+        # The default public key to use during encryption.  Default is nil.
+        attr_accessor :default_public_key_file
+        
+        # The default algorithm to use.  Default is nil.
+        attr_accessor :default_algorithm
+      end
+      
+      # Set defaults
       @default_private_key_file = nil
-      class << self; attr_accessor :default_private_key_file; end
-      
-      # The default public key to use during encryption.  Default is nil.
       @default_public_key_file = nil
-      class << self; attr_accessor :default_public_key_file; end
-      
-      # The default algorithm to use.  Default is nil.
       @default_algorithm = nil
-      class << self; attr_accessor :default_algorithm; end
       
       # Private key used for decrypting data
       attr_reader :private_key_file
@@ -70,30 +74,36 @@ module PluginAWeek #:nodoc:
       # The algorithm to use if the key files are encrypted themselves
       attr_accessor :algorithm
       
-      # The key used during symmetric decryption of the key files
-      attr_accessor :key
+      # The password used during symmetric decryption of the key files
+      attr_accessor :password
       
       # Configuration options:
       # * +private_key_file+ - Encrypted private key file
       # * +public_key_file+ - Public key file
-      # * +key+ - The key to use in the symmetric encryptor
+      # * +password+ - The password to use in the symmetric encryptor
+      # * +key+ - DEPRECATED. The password to use in the symmetric encryptor
       # * +algorithm+ - Algorithm to use symmetrically encrypted strings
+      # * +pkcs5_compliant+ - Whether the generated key/iv should comply to the PKCS #5 standard. Default is false.
       def initialize(options = {})
-        invalid_options = options.keys - [:private_key_file, :public_key_file, :key, :algorithm]
+        invalid_options = options.keys - [:private_key_file, :public_key_file, :password, :key, :algorithm, :pkcs5_compliant]
         raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
         
         options = {
-          :private_key_file => AsymmetricEncryptor.default_private_key_file,
-          :public_key_file => AsymmetricEncryptor.default_public_key_file,
-          :algorithm => AsymmetricEncryptor.default_algorithm
+          :private_key_file => self.class.default_private_key_file,
+          :public_key_file => self.class.default_public_key_file,
+          :algorithm => self.class.default_algorithm
         }.merge(options)
         
         @public_key = @private_key = nil
         
-        self.key = options[:key]
         self.algorithm  = options[:algorithm]
         self.private_key_file = options[:private_key_file]
         self.public_key_file  = options[:public_key_file]
+        self.password = options[:password] || options[:key]
+        warn(':key option is deprecated and will be removed from encrypted_attributes 0.2.0 (use :password)') if options[:key]
+        @pkcs5_compliant = options[:pkcs5_compliant]
+        
+        raise ArgumentError, 'At least one key file must be specified (:private_key_file or :public_key_file)' unless private_key_file || public_key_file
         
         super()
       end
@@ -163,8 +173,12 @@ module PluginAWeek #:nodoc:
         
         # Retrieves the private RSA from the private key
         def private_rsa
-          if key
-            private_key = @private_key.decrypt(:symmetric, :key => key, :algorithm => algorithm)
+          if password
+            options = {:password => password}
+            options[:algorithm] = algorithm if algorithm
+            options[:pkcs5_compliant] = @pkcs5_compliant if !@pkcs5_compliant.nil?
+            
+            private_key = @private_key.decrypt(:symmetric, options)
             OpenSSL::PKey::RSA.new(private_key)
           else
             @private_rsa ||= OpenSSL::PKey::RSA.new(@private_key)
