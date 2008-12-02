@@ -6,7 +6,7 @@ class StringByDefaultTest < Test::Unit::TestCase
   end
   
   def test_should_use_sha
-    assert_instance_of PluginAWeek::EncryptedStrings::ShaEncryptor, @encrypted_string.encryptor
+    assert_instance_of PluginAWeek::EncryptedStrings::ShaCipher, @encrypted_string.cipher
   end
 end
 
@@ -16,21 +16,21 @@ class StringWithCustomOptionsTest < Test::Unit::TestCase
   end
   
   def test_should_use_sha
-    assert_instance_of PluginAWeek::EncryptedStrings::ShaEncryptor, @encrypted_string.encryptor
+    assert_instance_of PluginAWeek::EncryptedStrings::ShaCipher, @encrypted_string.cipher
   end
   
   def test_should_use_custom_options
-    assert_equal 'different_salt', @encrypted_string.encryptor.salt
+    assert_equal 'different_salt', @encrypted_string.cipher.salt
   end
 end
 
-class StringWithCustomEncryptor
+class StringWithCustomCipher
   def setup
     @encrypted_string = 'test'.encrypt(:symmetric, :password => 'key')
   end
   
-  def test_should_use_custom_encryptor
-    assert_instance_of PluginAWeek::EncryptedStrings::SymmetricEncryptor, @encrypted_string.encryptor
+  def test_should_use_custom_cipher
+    assert_instance_of PluginAWeek::EncryptedStrings::SymmetricCipher, @encrypted_string.cipher
   end
 end
 
@@ -43,8 +43,8 @@ class StringTest < Test::Unit::TestCase
     assert !@string.encrypted?
   end
   
-  def test_should_not_have_an_encryptor
-    assert_nil @string.encryptor
+  def test_should_not_have_a_cipher
+    assert_nil @string.cipher
   end
   
   def test_should_not_be_able_to_decrypt
@@ -72,8 +72,8 @@ class StringAfterBeingEncryptedAndReplacedTest < Test::Unit::TestCase
     assert !'test'.equals_without_encryption(@encrypted_string)
   end
   
-  def test_should_have_an_encryptor
-    assert_instance_of PluginAWeek::EncryptedStrings::ShaEncryptor, @encrypted_string.encryptor
+  def test_should_have_a_cipher
+    assert_instance_of PluginAWeek::EncryptedStrings::ShaCipher, @encrypted_string.cipher
   end
   
   def test_should_be_encrypted
@@ -91,8 +91,8 @@ class StringAfterBeingDecryptedTest < Test::Unit::TestCase
     assert !@decrypted_string.encrypted?
   end
   
-  def test_should_not_have_an_encryptor
-    assert_nil @decrypted_string.encryptor
+  def test_should_not_have_a_cipher
+    assert_nil @decrypted_string.cipher
   end
 end
 
@@ -103,15 +103,15 @@ class StringAfterBeingDecryptedAndReplacedTest < Test::Unit::TestCase
   end
   
   def test_should_not_be_the_original_value
-    assert !"MU6e/5LvhKA=\n".equals_without_encryption(@encrypted_string)
+    assert !"oTxJd67ElLY=\n".equals_without_encryption(@encrypted_string)
   end
   
   def test_should_be_the_decrypted_value
     assert 'test'.equals_without_encryption(@encrypted_string)
   end
   
-  def test_should_not_have_an_encryptor
-    assert_nil @encrypted_string.encryptor
+  def test_should_not_have_a_cipher
+    assert_nil @encrypted_string.cipher
   end
   
   def test_should_not_be_encrypted
@@ -119,7 +119,7 @@ class StringAfterBeingDecryptedAndReplacedTest < Test::Unit::TestCase
   end
 end
 
-class StringWithUndecryptableEncryptorTest < Test::Unit::TestCase
+class StringWithUndecryptableCipherTest < Test::Unit::TestCase
   def setup
     @encrypted_string = 'test'.encrypt(:sha)
   end
@@ -148,7 +148,7 @@ class StringWithUndecryptableEncryptorTest < Test::Unit::TestCase
     assert_equal encrypted_encrypted_string, @encrypted_string
   end
   
-  def test_should_be_able_to_check_equality_with_same_string_without_encryptor
+  def test_should_be_able_to_check_equality_with_same_string_without_cipher
     assert_equal @encrypted_string.to_s, @encrypted_string
     assert_equal @encrypted_string, @encrypted_string.to_s
   end
@@ -161,7 +161,7 @@ class StringWithUndecryptableEncryptorTest < Test::Unit::TestCase
   end
 end
 
-class StringWithDecryptableEncryptorTest < Test::Unit::TestCase
+class StringWithDecryptableCipherTest < Test::Unit::TestCase
   def setup
     @encrypted_string = 'test'.encrypt(:symmetric, :password => 'secret')
   end
@@ -186,7 +186,7 @@ class StringWithDecryptableEncryptorTest < Test::Unit::TestCase
     assert_equal encrypted_encrypted_string, @encrypted_string
   end
   
-  def test_should_be_able_to_check_equality_with_same_string_without_encryptor
+  def test_should_be_able_to_check_equality_with_same_string_without_cipher
     assert_equal @encrypted_string.to_s, @encrypted_string
     assert_equal @encrypted_string, @encrypted_string.to_s
   end
@@ -201,15 +201,15 @@ end
 
 class StringPreviouslyEncryptedTest < Test::Unit::TestCase
   def setup
-    @encrypted_string = "MU6e/5LvhKA=\n"
+    @encrypted_string = "oTxJd67ElLY=\n"
   end
   
   def test_should_not_be_encrypted
     assert !@encrypted_string.encrypted?
   end
   
-  def test_should_not_have_an_encryptor
-    assert_nil @encrypted_string.encryptor
+  def test_should_not_have_a_cipher
+    assert_nil @encrypted_string.cipher
   end
   
   def test_should_not_be_able_to_decrypt

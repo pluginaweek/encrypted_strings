@@ -6,17 +6,17 @@ module PluginAWeek #:nodoc:
     # 
     # == Encrypting
     # 
-    # To encrypt a string using an SHA algorithm, the salt used to seed the
-    # encrypting must be specified.  You can define the default for this
-    # value like so:
+    # To encrypt a string using an SHA cipher, the salt used to seed the
+    # algorithm must be specified.  You can define the default for this value
+    # like so:
     # 
-    #   PluginAWeek::EncryptedStrings::ShaEncryptor.default_salt = "secret"
+    #   PluginAWeek::EncryptedStrings::ShaCipher.default_salt = 'secret'
     # 
     # If these configuration options are not passed in to #encrypt, then the
     # default values will be used.  You can override the default values like so:
     # 
-    #   password = "shhhh"
-    #   password.encrypt(:sha, :salt => "my_salt")  # => "ae645b35bb5dfea6c9133ac872e6adfa92a3c2bd"
+    #   password = 'shhhh'
+    #   password.encrypt(:sha, :salt => 'secret')  # => "ae645b35bb5dfea6c9133ac872e6adfa92a3c2bd"
     # 
     # == Decrypting
     # 
@@ -24,10 +24,10 @@ module PluginAWeek #:nodoc:
     # whether an unencrypted value is equal to an SHA-encrypted string is to
     # encrypt the value with the same salt.  For example,
     # 
-    #   password = "shhhh".encrypt(:sha, :salt => "secret") # => "3b22cbe4acde873c3efc82681096f3ae69aff828"
-    #   input = "shhhh".encrypt(:sha, :salt => "secret")    # => "3b22cbe4acde873c3efc82681096f3ae69aff828"
+    #   password = 'shhhh'.encrypt(:sha, :salt => 'secret') # => "3b22cbe4acde873c3efc82681096f3ae69aff828"
+    #   input = 'shhhh'.encrypt(:sha, :salt => 'secret')    # => "3b22cbe4acde873c3efc82681096f3ae69aff828"
     #   password == input                                   # => true
-    class ShaEncryptor < Encryptor
+    class ShaCipher < Cipher
       class << self
         # The default salt value to use during encryption
         attr_accessor :default_salt
@@ -39,13 +39,15 @@ module PluginAWeek #:nodoc:
       # The salt value to use for encryption
       attr_accessor :salt
       
+      # Creates a new cipher that uses an SHA encryption strategy.
+      # 
       # Configuration options:
-      # * +salt+ - Salt value to use for encryption
+      # * +salt+ - Random bytes used as one of the inputs for generating the encrypted string
       def initialize(options = {})
         invalid_options = options.keys - [:salt]
         raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
         
-        options = {:salt => ShaEncryptor.default_salt}.merge(options)
+        options = {:salt => self.class.default_salt}.merge(options)
         
         self.salt = options[:salt].to_s
         

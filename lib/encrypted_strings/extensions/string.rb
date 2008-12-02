@@ -4,36 +4,36 @@ require 'base64'
 module PluginAWeek #:nodoc:
   module EncryptedStrings
     module Extensions #:nodoc:
-      # Adds support for encryption/decryption of strings
+      # Adds support for in-place encryption/decryption of strings
       module String
         def self.included(base) #:nodoc:
           base.class_eval do
-            attr_accessor :encryptor
+            attr_accessor :cipher
             
             alias_method :equals_without_encryption, :==
             alias_method :==, :equals_with_encryption
           end
         end
         
-        # Encrypts the current string using the specified encryption mode.
-        # The default encryption mode is sha.
+        # Encrypts the current string using the specified cipher.  The default
+        # cipher is sha.
         # 
-        # Configuration options are encryption-specific.  See the encryptor
-        # class for that mode to find out the options available.
+        # Configuration options are cipher-specific.  See each individual cipher
+        # class to find out the options available.
         # 
         # == Example
         # 
-        # The following uses SHA mode to encrypt the string:
+        # The following uses an SHA cipher to encrypt the string:
         # 
         #   password = 'shhhh'
         #   password.encrypt  # => "66c85d26dadde7e1db27e15a0776c921e27143bd"
         # 
         # == Custom encryption mode
         # 
-        # The following uses Symmetric mode (with a default key) to encrypt the
-        # string:
+        # The following uses Symmetric cipher (with a default password) to
+        # encrypt the string:
         # 
-        #   PluginAWeek::EncryptedStrings::SymmetricEncryptor.default_key = 'my_key'
+        #   PluginAWeek::EncryptedStrings::SymmetricCipher.default_password = 'secret'
         #   password = 'shhhh'
         #   password.encrypt(:symmetric)  # => "jDACXI5hMPI=\n"
         # 
@@ -46,9 +46,9 @@ module PluginAWeek #:nodoc:
         #   password = 'shhhh'
         #   password.encrypt(:sha, :salt => 'secret') # => "3b22cbe4acde873c3efc82681096f3ae69aff828"
         def encrypt(*args)
-          encryptor = encryptor_from_args(*args)
-          encrypted_string = encryptor.encrypt(self)
-          encrypted_string.encryptor = encryptor
+          cipher = cipher_from_args(*args)
+          encrypted_string = cipher.encrypt(self)
+          encrypted_string.cipher = cipher
           
           encrypted_string
         end
@@ -60,17 +60,17 @@ module PluginAWeek #:nodoc:
         # == Example
         # 
         #   password = 'shhhh'
-        #   password.encrypt!(:symmetric, :password => 'my_key') # => "jDACXI5hMPI=\n"
-        #   password                                        # => "jDACXI5hMPI=\n"
+        #   password.encrypt!(:symmetric, :password => 'secret')  # => "qSg8vOo6QfU=\n"
+        #   password                                              # => "qSg8vOo6QfU=\n"
         def encrypt!(*args)
           encrypted_string = encrypt(*args)
-          self.encryptor = encrypted_string.encryptor
+          self.cipher = encrypted_string.cipher
           
           replace(encrypted_string)
         end
         
         # Is this string encrypted?  This will return true if the string is the
-        # result of a call to #encrypt or #encrypt! was previously invoked.
+        # result of a call to #encrypt or #encrypt!.
         # 
         # == Example
         # 
@@ -79,23 +79,31 @@ module PluginAWeek #:nodoc:
         #   password.encrypt!   # => "66c85d26dadde7e1db27e15a0776c921e27143bd"
         #   password.encrypted? # => true
         def encrypted?
-          !@encryptor.nil?
+          !cipher.nil?
         end
         
-        # Decrypts this string.  If this is not a string that was previously encrypted,
-        # the encryption algorithm must be specified in the same way the
-        # algorithm is specified when encrypting a string.
+        # Decrypts this string.  If this is not a string that was previously
+        # encrypted, the cipher must be specified in the same way that it is
+        # when encrypting a string.
         # 
         # == Example
         # 
-        #   password = "jDACXI5hMPI=\n"
-        #   password.decrypt(:symmetric, :password => 'my_key')  # => "shhhh"
+        # Without being previously encrypted:
+        # 
+        #   password = "qSg8vOo6QfU=\n"
+        #   password.decrypt(:symmetric, :password => 'secret')   # => "shhhh"
+        # 
+        # After being previously encrypted:
+        # 
+        #   password = 'shhhh'
+        #   password.encrypt!(:symmetric, :password => 'secret')  # => "qSg8vOo6QfU=\n"
+        #   password.decrypt                                      # => "shhhh"
         def decrypt(*args)
-          raise ArgumentError, "An encryption algorithm must be specified since we can't figure it out" if args.empty? && !@encryptor
+          raise ArgumentError, 'Cipher cannot be inferred: must specify it as an argument' if args.empty? && !encrypted?
           
-          encryptor = args.any? ? encryptor_from_args(*args) : (@encryptor || encryptor_from_args(*args))
-          encrypted_string = encryptor.decrypt(self)
-          encrypted_string.encryptor = nil
+          cipher = args.empty? && self.cipher || cipher_from_args(*args)
+          encrypted_string = cipher.decrypt(self)
+          encrypted_string.cipher = nil
           
           encrypted_string
         end
@@ -106,21 +114,21 @@ module PluginAWeek #:nodoc:
         # 
         # For example,
         # 
-        #   password = "jDACXI5hMPI=\n"
-        #   password.decrypt!(:symmetric, :password => 'my_key') # => "shhhh"
-        #   password                                        # => "shhhh"
+        #   password = "qSg8vOo6QfU=\n"
+        #   password.decrypt!(:symmetric, :password => 'secret')  # => "shhhh"
+        #   password                                              # => "shhhh"
         def decrypt!(*args)
           value = replace(decrypt(*args))
-          self.encryptor = nil
+          self.cipher = nil
           value
         end
         
         # Can this string be decrypted?  Strings can only be decrypted if they
-        # have previously been decrypted +and+ the encryption algorithm supports
-        # decryption.  To determine whether or not the encryption algorithm
-        # supports decryption, see the api for the algorithm's encryptor class.
+        # have previously been decrypted *and* the cipher supports decryption.
+        # To determine whether or not the cipher supports decryption, see the
+        # api for the cipher.
         def can_decrypt?
-          encrypted? && @encryptor.can_decrypt?
+          encrypted? && cipher.can_decrypt?
         end
         
         # Tests whether the other object is equal to this one.  Encrypted strings
@@ -180,16 +188,17 @@ module PluginAWeek #:nodoc:
             if encrypted_value.can_decrypt?
               encrypted_value.decrypt.equals_without_encryption(value)
             else
-              # Otherwise encrypt this value based on the encryptor used on the encrypted value
+              # Otherwise encrypt this value based on the cipher used on the encrypted value
               # and test the equality of those strings
-              encrypted_value.equals_without_encryption(encrypted_value.encryptor.encrypt(value))
+              encrypted_value.equals_without_encryption(encrypted_value.cipher.encrypt(value))
             end
           end
           
-          def encryptor_from_args(*args) #:nodoc:
+          # Builds the cipher to use from the given arguments
+          def cipher_from_args(*args) #:nodoc:
             options = args.last.is_a?(Hash) ? args.pop : {}
-            mode = (args.first || :sha).to_s.gsub(/(?:^|_)(.)/) {$1.upcase}
-            PluginAWeek::EncryptedStrings.const_get("#{mode}Encryptor").new(options)
+            name = (args.first || :sha).to_s.gsub(/(?:^|_)(.)/) {$1.upcase}
+            PluginAWeek::EncryptedStrings.const_get("#{name}Cipher").new(options)
           end
       end
     end

@@ -1,5 +1,11 @@
 == master
 
+* Remove AsymmetricEncryptor.default_algorithm, instead relying on SymmetricEncryptor.default_algorithm
+* Rename NoKeyError to NoPasswordError
+* Rename Encryptors to Ciphers
+* Remove deprecated SymmetricEncryptor#key option
+* Require that symmetric encryption be PKCS #5 compliant
+
 == 0.1.1 / 2008-12-01
 
 * Fix non-compliant PKCS #5 algorithm being used for symmetric encryption. Use :pkcs5_compliant => true for better security.
