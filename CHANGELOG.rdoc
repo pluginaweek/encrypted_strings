@@ -1,5 +1,7 @@
 == master
 
+* Fix class-level defaults not working when inherited
+
 == 0.2.0 / 2008-12-01
 
 * Remove AsymmetricEncryptor.default_algorithm, instead relying on SymmetricEncryptor.default_algorithm

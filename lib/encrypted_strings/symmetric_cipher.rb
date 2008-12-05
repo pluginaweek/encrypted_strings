@@ -68,8 +68,8 @@ module PluginAWeek #:nodoc:
         raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
         
         options = {
-          :algorithm => self.class.default_algorithm,
-          :password => self.class.default_password
+          :algorithm => SymmetricCipher.default_algorithm,
+          :password => SymmetricCipher.default_password
         }.merge(options)
         
         self.algorithm = options[:algorithm]

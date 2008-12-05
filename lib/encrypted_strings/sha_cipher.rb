@@ -47,7 +47,7 @@ module PluginAWeek #:nodoc:
         invalid_options = options.keys - [:salt]
         raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
         
-        options = {:salt => self.class.default_salt}.merge(options)
+        options = {:salt => ShaCipher.default_salt}.merge(options)
         
         self.salt = options[:salt].to_s
         

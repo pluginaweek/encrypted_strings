@@ -86,8 +86,8 @@ module PluginAWeek #:nodoc:
         raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
         
         options = {
-          :private_key_file => self.class.default_private_key_file,
-          :public_key_file => self.class.default_public_key_file
+          :private_key_file => AsymmetricCipher.default_private_key_file,
+          :public_key_file => AsymmetricCipher.default_public_key_file
         }.merge(options)
         
         @public_key = @private_key = nil
