@@ -1,5 +1,7 @@
 == master
 
+* Fix symmetric ciphers not working on Ruby 1.8.6 and below
+
 == 0.3.0 / 2008-12-14
 
 * Remove the PluginAWeek namespace
