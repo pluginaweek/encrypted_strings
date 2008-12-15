@@ -1,5 +1,7 @@
 == master
 
+* Remove the PluginAWeek namespace
+
 == 0.2.1 / 2008-12-04
 
 * Fix class-level defaults not working when inherited

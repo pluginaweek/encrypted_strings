@@ -6,7 +6,7 @@ class StringByDefaultTest < Test::Unit::TestCase
   end
   
   def test_should_use_sha
-    assert_instance_of PluginAWeek::EncryptedStrings::ShaCipher, @encrypted_string.cipher
+    assert_instance_of EncryptedStrings::ShaCipher, @encrypted_string.cipher
   end
 end
 
@@ -16,7 +16,7 @@ class StringWithCustomOptionsTest < Test::Unit::TestCase
   end
   
   def test_should_use_sha
-    assert_instance_of PluginAWeek::EncryptedStrings::ShaCipher, @encrypted_string.cipher
+    assert_instance_of EncryptedStrings::ShaCipher, @encrypted_string.cipher
   end
   
   def test_should_use_custom_options
@@ -30,7 +30,7 @@ class StringWithCustomCipher
   end
   
   def test_should_use_custom_cipher
-    assert_instance_of PluginAWeek::EncryptedStrings::SymmetricCipher, @encrypted_string.cipher
+    assert_instance_of EncryptedStrings::SymmetricCipher, @encrypted_string.cipher
   end
 end
 
@@ -73,7 +73,7 @@ class StringAfterBeingEncryptedAndReplacedTest < Test::Unit::TestCase
   end
   
   def test_should_have_a_cipher
-    assert_instance_of PluginAWeek::EncryptedStrings::ShaCipher, @encrypted_string.cipher
+    assert_instance_of EncryptedStrings::ShaCipher, @encrypted_string.cipher
   end
   
   def test_should_be_encrypted

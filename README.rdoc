@@ -38,11 +38,11 @@ Asymmetric ciphers.
   >> encrypted_password.class
   => String
   >> encrypted_password.cipher
-  => #<PluginAWeek::EncryptedStrings::ShaCipher:0x2b9238889460 @salt="salt">
+  => #<EncryptedStrings::ShaCipher:0x2b9238889460 @salt="salt">
   >> encrypted_password == 'shhhh'
   => true
   >> encrypted_password.decrypt
-  NotImplementedError: Decryption is not supported using a(n) PluginAWeek::EncryptedStrings::ShaCipher
+  NotImplementedError: Decryption is not supported using a(n) EncryptedStrings::ShaCipher
           from ./script/../config/../config/../vendor/plugins/encrypted_strings/lib/encrypted_strings/cipher.rb:13:in `decrypt'
           from ./script/../config/../config/../vendor/plugins/encrypted_strings/lib/encrypted_strings/extensions/string.rb:52:in `decrypt'
           from (irb):40

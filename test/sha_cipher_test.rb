@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class ShaCipherByDefaulTest < Test::Unit::TestCase
   def setup
-    @sha_cipher = PluginAWeek::EncryptedStrings::ShaCipher.new
+    @sha_cipher = EncryptedStrings::ShaCipher.new
   end
   
   def test_should_use_default_salt
@@ -16,9 +16,9 @@ end
 
 class ShaCipherWithCustomDefaultsTest < Test::Unit::TestCase
   def setup
-    @original_default_salt = PluginAWeek::EncryptedStrings::ShaCipher.default_salt
-    PluginAWeek::EncryptedStrings::ShaCipher.default_salt = 'custom_salt'
-    @sha_cipher = PluginAWeek::EncryptedStrings::ShaCipher.new
+    @original_default_salt = EncryptedStrings::ShaCipher.default_salt
+    EncryptedStrings::ShaCipher.default_salt = 'custom_salt'
+    @sha_cipher = EncryptedStrings::ShaCipher.new
   end
   
   def test_should_use_custom_default_salt
@@ -30,33 +30,33 @@ class ShaCipherWithCustomDefaultsTest < Test::Unit::TestCase
   end
   
   def teardown
-    PluginAWeek::EncryptedStrings::ShaCipher.default_salt = @original_default_salt
+    EncryptedStrings::ShaCipher.default_salt = @original_default_salt
   end
 end
 
 class ShaCipherWithInvalidOptionsTest < Test::Unit::TestCase
   def test_should_throw_an_exception
-    assert_raise(ArgumentError) {PluginAWeek::EncryptedStrings::ShaCipher.new(:invalid => true)}
+    assert_raise(ArgumentError) {EncryptedStrings::ShaCipher.new(:invalid => true)}
   end
 end
 
 class ShaCipherTest < Test::Unit::TestCase
   def setup
-    @sha_cipher = PluginAWeek::EncryptedStrings::ShaCipher.new
+    @sha_cipher = EncryptedStrings::ShaCipher.new
   end
   
   def test_should_not_be_able_to_decrypt
-    assert !PluginAWeek::EncryptedStrings::ShaCipher.new.can_decrypt?
+    assert !EncryptedStrings::ShaCipher.new.can_decrypt?
   end
   
   def test_should_raise_exception_if_trying_to_decrypt
-    assert_raises(NotImplementedError) {PluginAWeek::EncryptedStrings::ShaCipher.new.decrypt('test')}
+    assert_raises(NotImplementedError) {EncryptedStrings::ShaCipher.new.decrypt('test')}
   end
 end
 
 class ShaCipherWithCustomOptionsTest < Test::Unit::TestCase
   def setup
-    @sha_cipher = PluginAWeek::EncryptedStrings::ShaCipher.new(:salt => 'different salt')
+    @sha_cipher = EncryptedStrings::ShaCipher.new(:salt => 'different salt')
   end
   
   def test_should_use_custom_salt
@@ -72,7 +72,7 @@ class ShaCipherWithNonStringSaltTest < Test::Unit::TestCase
   require 'time'
   
   def setup
-    @sha_cipher = PluginAWeek::EncryptedStrings::ShaCipher.new(:salt => Time.parse('Tue Jan 01 00:00:00 UTC 2008'))
+    @sha_cipher = EncryptedStrings::ShaCipher.new(:salt => Time.parse('Tue Jan 01 00:00:00 UTC 2008'))
   end
   
   def test_should_stringify_salt

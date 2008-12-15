@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class CipherByDefaultTest < Test::Unit::TestCase
   def setup
-    @cipher = PluginAWeek::EncryptedStrings::Cipher.new
+    @cipher = EncryptedStrings::Cipher.new
   end
   
   def test_should_be_able_to_decrypt_by_default

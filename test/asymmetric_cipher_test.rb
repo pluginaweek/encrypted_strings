@@ -2,27 +2,27 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class NoPrivateKeyErrorTest < Test::Unit::TestCase
   def test_should_exist
-    assert_not_nil PluginAWeek::EncryptedStrings::NoPrivateKeyError
+    assert_not_nil EncryptedStrings::NoPrivateKeyError
   end
 end
 
 class NoPublicKeyErrorTest < Test::Unit::TestCase
   def test_should_exist
-    assert_not_nil PluginAWeek::EncryptedStrings::NoPublicKeyError
+    assert_not_nil EncryptedStrings::NoPublicKeyError
   end
 end
 
 class AsymmetricCipherByDefaultTest < Test::Unit::TestCase
   def setup
-    @asymmetric_cipher = PluginAWeek::EncryptedStrings::AsymmetricCipher.new(:public_key_file => File.dirname(__FILE__) + '/keys/public')
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:public_key_file => File.dirname(__FILE__) + '/keys/public')
   end
   
   def test_should_raise_an_exception
-    assert_raise(ArgumentError) {PluginAWeek::EncryptedStrings::AsymmetricCipher.new}
+    assert_raise(ArgumentError) {EncryptedStrings::AsymmetricCipher.new}
   end
   
   def test_should_not_have_a_public_key_file
-    @asymmetric_cipher = PluginAWeek::EncryptedStrings::AsymmetricCipher.new(:private_key_file => File.dirname(__FILE__) + '/keys/private')
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:private_key_file => File.dirname(__FILE__) + '/keys/private')
     assert_nil @asymmetric_cipher.public_key_file
   end
   
@@ -41,13 +41,13 @@ end
 
 class AsymmetricCipherWithCustomDefaultsTest < Test::Unit::TestCase
   def setup
-    @original_default_public_key_file = PluginAWeek::EncryptedStrings::AsymmetricCipher.default_public_key_file
-    @original_default_private_key_file = PluginAWeek::EncryptedStrings::AsymmetricCipher.default_private_key_file
+    @original_default_public_key_file = EncryptedStrings::AsymmetricCipher.default_public_key_file
+    @original_default_private_key_file = EncryptedStrings::AsymmetricCipher.default_private_key_file
     
-    PluginAWeek::EncryptedStrings::AsymmetricCipher.default_public_key_file = File.dirname(__FILE__) + '/keys/public'
-    PluginAWeek::EncryptedStrings::AsymmetricCipher.default_private_key_file = File.dirname(__FILE__) + '/keys/private'
+    EncryptedStrings::AsymmetricCipher.default_public_key_file = File.dirname(__FILE__) + '/keys/public'
+    EncryptedStrings::AsymmetricCipher.default_private_key_file = File.dirname(__FILE__) + '/keys/private'
     
-    @asymmetric_cipher = PluginAWeek::EncryptedStrings::AsymmetricCipher.new
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new
   end
   
   def test_should_use_default_public_key_file
@@ -67,20 +67,20 @@ class AsymmetricCipherWithCustomDefaultsTest < Test::Unit::TestCase
   end
   
   def teardown
-    PluginAWeek::EncryptedStrings::AsymmetricCipher.default_public_key_file = @original_default_public_key_file
-    PluginAWeek::EncryptedStrings::AsymmetricCipher.default_private_key_file = @original_default_private_key_file
+    EncryptedStrings::AsymmetricCipher.default_public_key_file = @original_default_public_key_file
+    EncryptedStrings::AsymmetricCipher.default_private_key_file = @original_default_private_key_file
   end
 end
 
 class AsymmetricCipherWithInvalidOptionsTest < Test::Unit::TestCase
   def test_should_throw_an_exception
-    assert_raise(ArgumentError) {PluginAWeek::EncryptedStrings::AsymmetricCipher.new(:invalid => true)}
+    assert_raise(ArgumentError) {EncryptedStrings::AsymmetricCipher.new(:invalid => true)}
   end
 end
 
 class AsymmetricCipherTest < Test::Unit::TestCase
   def setup
-    @asymmetric_cipher = PluginAWeek::EncryptedStrings::AsymmetricCipher.new(:public_key_file => File.dirname(__FILE__) + '/keys/public')
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:public_key_file => File.dirname(__FILE__) + '/keys/public')
   end
   
   def test_should_be_able_to_decrypt
@@ -90,7 +90,7 @@ end
 
 class AsymmetricCipherWithoutPublicKeyTest < Test::Unit::TestCase
   def setup
-    @asymmetric_cipher = PluginAWeek::EncryptedStrings::AsymmetricCipher.new(:public_key_file => nil, :private_key_file => File.dirname(__FILE__) + '/keys/private')
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:public_key_file => nil, :private_key_file => File.dirname(__FILE__) + '/keys/private')
   end
   
   def test_should_not_be_public
@@ -98,13 +98,13 @@ class AsymmetricCipherWithoutPublicKeyTest < Test::Unit::TestCase
   end
   
   def test_should_not_be_able_to_encrypt
-    assert_raise(PluginAWeek::EncryptedStrings::NoPublicKeyError) {@asymmetric_cipher.encrypt('test')}
+    assert_raise(EncryptedStrings::NoPublicKeyError) {@asymmetric_cipher.encrypt('test')}
   end
 end
 
 class AsymmetricCipherWithPublicKeyTest < Test::Unit::TestCase
   def setup
-    @asymmetric_cipher = PluginAWeek::EncryptedStrings::AsymmetricCipher.new(:public_key_file => File.dirname(__FILE__) + '/keys/public')
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:public_key_file => File.dirname(__FILE__) + '/keys/public')
   end
   
   def test_should_be_public
@@ -120,13 +120,13 @@ class AsymmetricCipherWithPublicKeyTest < Test::Unit::TestCase
   end
   
   def test_should_not_be_able_to_decrypt
-    assert_raise(PluginAWeek::EncryptedStrings::NoPrivateKeyError) {@asymmetric_cipher.decrypt("HbEh0Hwri26S7SWYqO26DBbzfhR1h/0pXYLjSKUpxF5DOaOCtD9oRN748+Na\nrfNaVN5Eg7RUhbRFZE+UnNHo6Q==\n")}
+    assert_raise(EncryptedStrings::NoPrivateKeyError) {@asymmetric_cipher.decrypt("HbEh0Hwri26S7SWYqO26DBbzfhR1h/0pXYLjSKUpxF5DOaOCtD9oRN748+Na\nrfNaVN5Eg7RUhbRFZE+UnNHo6Q==\n")}
   end
 end
 
 class AsymmetricCipherWithoutPrivateKeyTest < Test::Unit::TestCase
   def setup
-    @asymmetric_cipher = PluginAWeek::EncryptedStrings::AsymmetricCipher.new(:private_key_file => nil, :public_key_file => File.dirname(__FILE__) + '/keys/public')
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:private_key_file => nil, :public_key_file => File.dirname(__FILE__) + '/keys/public')
   end
   
   def test_should_not_be_private
@@ -134,13 +134,13 @@ class AsymmetricCipherWithoutPrivateKeyTest < Test::Unit::TestCase
   end
   
   def test_should_not_be_able_to_decrypt
-    assert_raise(PluginAWeek::EncryptedStrings::NoPrivateKeyError) {@asymmetric_cipher.decrypt("HbEh0Hwri26S7SWYqO26DBbzfhR1h/0pXYLjSKUpxF5DOaOCtD9oRN748+Na\nrfNaVN5Eg7RUhbRFZE+UnNHo6Q==\n")}
+    assert_raise(EncryptedStrings::NoPrivateKeyError) {@asymmetric_cipher.decrypt("HbEh0Hwri26S7SWYqO26DBbzfhR1h/0pXYLjSKUpxF5DOaOCtD9oRN748+Na\nrfNaVN5Eg7RUhbRFZE+UnNHo6Q==\n")}
   end
 end
 
 class AsymmetricCipherWithPrivateKeyTest < Test::Unit::TestCase
   def setup
-    @asymmetric_cipher = PluginAWeek::EncryptedStrings::AsymmetricCipher.new(:private_key_file => File.dirname(__FILE__) + '/keys/private')
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:private_key_file => File.dirname(__FILE__) + '/keys/private')
   end
   
   def test_should_not_be_public
@@ -152,7 +152,7 @@ class AsymmetricCipherWithPrivateKeyTest < Test::Unit::TestCase
   end
   
   def test_not_should_be_able_to_encrypt
-    assert_raise(PluginAWeek::EncryptedStrings::NoPublicKeyError) {@asymmetric_cipher.encrypt('test')}
+    assert_raise(EncryptedStrings::NoPublicKeyError) {@asymmetric_cipher.encrypt('test')}
   end
   
   def test_should_be_able_to_decrypt
@@ -162,7 +162,7 @@ end
 
 class AsymmetricCipherWithEncryptedPrivateKeyTest < Test::Unit::TestCase
   def setup
-    @asymmetric_cipher = PluginAWeek::EncryptedStrings::AsymmetricCipher.new(:private_key_file => File.dirname(__FILE__) + '/keys/encrypted_private', :algorithm => 'DES-EDE3-CBC', :password => 'secret')
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:private_key_file => File.dirname(__FILE__) + '/keys/encrypted_private', :algorithm => 'DES-EDE3-CBC', :password => 'secret')
   end
   
   def test_should_not_be_public
@@ -174,7 +174,7 @@ class AsymmetricCipherWithEncryptedPrivateKeyTest < Test::Unit::TestCase
   end
   
   def test_should_not_be_able_to_encrypt
-    assert_raise(PluginAWeek::EncryptedStrings::NoPublicKeyError) {@asymmetric_cipher.encrypt('test')}
+    assert_raise(EncryptedStrings::NoPublicKeyError) {@asymmetric_cipher.encrypt('test')}
   end
   
   def test_should_be_able_to_decrypt
