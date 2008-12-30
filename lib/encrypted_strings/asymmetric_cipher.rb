@@ -107,7 +107,7 @@ module EncryptedStrings
       raise NoPublicKeyError, "Public key file: #{public_key_file}" unless public?
       
       encrypted_data = public_rsa.public_encrypt(data)
-      Base64.encode64(encrypted_data)
+      [encrypted_data].pack('m')
     end
     
     # Decrypts the given data. If no private key file has been specified, then
@@ -115,7 +115,7 @@ module EncryptedStrings
     def decrypt(data)
       raise NoPrivateKeyError, "Private key file: #{private_key_file}" unless private?
       
-      decrypted_data = Base64.decode64(data)
+      decrypted_data = data.unpack('m')[0]
       private_rsa.private_decrypt(decrypted_data)
     end
     

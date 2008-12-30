@@ -72,10 +72,11 @@ class ShaCipherWithNonStringSaltTest < Test::Unit::TestCase
   require 'time'
   
   def setup
-    @sha_cipher = EncryptedStrings::ShaCipher.new(:salt => Time.parse('Tue Jan 01 00:00:00 UTC 2008'))
+    @time = Time.parse('Tue Jan 01 00:00:00 UTC 2008')
+    @sha_cipher = EncryptedStrings::ShaCipher.new(:salt => @time)
   end
   
   def test_should_stringify_salt
-    assert_equal 'Tue Jan 01 00:00:00 UTC 2008', @sha_cipher.salt
+    assert_equal @time.to_s, @sha_cipher.salt
   end
 end

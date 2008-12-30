@@ -1,6 +1,3 @@
-require 'openssl'
-require 'base64'
-
 module EncryptedStrings
   module Extensions #:nodoc:
     # Adds support for in-place encryption/decryption of strings

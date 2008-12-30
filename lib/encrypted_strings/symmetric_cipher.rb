@@ -81,13 +81,13 @@ module EncryptedStrings
     # Decrypts the current string using the current key and algorithm specified
     def decrypt(data)
       cipher = build_cipher(:decrypt)
-      cipher.update(Base64.decode64(data)) + cipher.final
+      cipher.update(data.unpack('m')[0]) + cipher.final
     end
     
     # Encrypts the current string using the current key and algorithm specified
     def encrypt(data)
       cipher = build_cipher(:encrypt)
-      Base64.encode64(cipher.update(data) + cipher.final)
+      [cipher.update(data) + cipher.final].pack('m')
     end
     
     private
