@@ -1,6 +1,6 @@
 == master
 
-* Use pack/unpack instead of Base64 to be compatible with Ruby 1.9+
+* Use Array#pack/String#unpack instead of Base64 to be compatible with Ruby 1.9+
 
 == 0.3.1 / 2008-12-4
 
