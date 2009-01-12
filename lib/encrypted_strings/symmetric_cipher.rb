@@ -60,8 +60,9 @@ module EncryptedStrings
     # Creates a new cipher that uses a symmetric encryption strategy.
     # 
     # Configuration options:
-    # * +algorithm+ - The algorithm to use for generating the encrypted string
-    # * +password+ - The secret value to use for generating the key/initialization vector for the algorithm
+    # * <tt>:algorithm</tt> - The algorithm to use for generating the encrypted string
+    # * <tt>:password</tt> - The secret value to use for generating the
+    #   key/initialization vector for the algorithm
     def initialize(options = {})
       invalid_options = options.keys - [:algorithm, :password]
       raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?

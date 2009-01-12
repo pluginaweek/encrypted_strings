@@ -41,7 +41,8 @@ module EncryptedStrings
     # Creates a new cipher that uses an SHA encryption strategy.
     # 
     # Configuration options:
-    # * +salt+ - Random bytes used as one of the inputs for generating the encrypted string
+    # * <tt>:salt</tt> - Random bytes used as one of the inputs for generating
+    #   the encrypted string
     def initialize(options = {})
       invalid_options = options.keys - [:salt]
       raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?

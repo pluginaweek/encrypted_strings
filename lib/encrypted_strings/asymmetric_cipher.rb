@@ -76,10 +76,10 @@ module EncryptedStrings
     # Creates a new cipher that uses an asymmetric encryption strategy.
     # 
     # Configuration options:
-    # * +private_key_file+ - Encrypted private key file
-    # * +public_key_file+ - Public key file
-    # * +password+ - The password to use in the symmetric cipher
-    # * +algorithm+ - Algorithm to use symmetrically encrypted strings
+    # * <tt>:private_key_file</tt> - Encrypted private key file
+    # * <tt>:public_key_file</tt> - Public key file
+    # * <tt>:password</tt> - The password to use in the symmetric cipher
+    # * <tt>:algorithm</tt> - Algorithm to use symmetrically encrypted strings
     def initialize(options = {})
       invalid_options = options.keys - [:private_key_file, :public_key_file, :algorithm, :password]
       raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
