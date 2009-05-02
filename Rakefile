@@ -7,7 +7,8 @@ spec = Gem::Specification.new do |s|
   s.name              = 'encrypted_strings'
   s.version           = '0.3.2'
   s.platform          = Gem::Platform::RUBY
-  s.summary           = 'Dead-simple string encryption/decryption syntax.'
+  s.summary           = 'Dead-simple string encryption/decryption syntax'
+  s.description       = s.summary
   
   s.files             = FileList['{lib,test}/**/*'] + %w(CHANGELOG.rdoc init.rb LICENSE Rakefile README.rdoc)
   s.require_path      = 'lib'
