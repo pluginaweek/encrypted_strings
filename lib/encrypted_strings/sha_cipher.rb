@@ -9,6 +9,7 @@ module EncryptedStrings
   # algorithm must be specified.  You can define the default for this value
   # like so:
   # 
+  #   EncryptedStrings::ShaCipher.default_algorithm = 'sha512'
   #   EncryptedStrings::ShaCipher.default_salt = 'secret'
   # 
   # If these configuration options are not passed in to #encrypt, then the
@@ -28,12 +29,19 @@ module EncryptedStrings
   #   password == input                                   # => true
   class ShaCipher < Cipher
     class << self
+      # The default algorithm to use for encryption.  Default is SHA1.
+      attr_accessor :default_algorithm
+      
       # The default salt value to use during encryption
       attr_accessor :default_salt
     end
     
     # Set defaults
+    @default_algorithm = 'SHA1'
     @default_salt = 'salt'
+    
+    # The algorithm to use for encryption/decryption
+    attr_accessor :algorithm
     
     # The salt value to use for encryption
     attr_accessor :salt
@@ -41,14 +49,20 @@ module EncryptedStrings
     # Creates a new cipher that uses an SHA encryption strategy.
     # 
     # Configuration options:
+    # * <tt>:algorithm</tt> - The hashing algorithm to use for generating the
+    #   encrypted string
     # * <tt>:salt</tt> - Random bytes used as one of the inputs for generating
     #   the encrypted string
     def initialize(options = {})
-      invalid_options = options.keys - [:salt]
+      invalid_options = options.keys - [:algorithm, :salt]
       raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
       
-      options = {:salt => ShaCipher.default_salt}.merge(options)
+      options = {
+        :algorithm => ShaCipher.default_algorithm,
+        :salt => ShaCipher.default_salt
+      }.merge(options)
       
+      self.algorithm = options[:algorithm].upcase
       self.salt = options[:salt].to_s
       
       super()
@@ -61,7 +75,7 @@ module EncryptedStrings
     
     # Returns the encrypted value of the data
     def encrypt(data)
-      Digest::SHA1.hexdigest(data + salt)
+      Digest::const_get(algorithm.upcase).hexdigest(data + salt)
     end
   end
 end

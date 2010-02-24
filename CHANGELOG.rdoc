@@ -1,5 +1,7 @@
 == master
 
+* Add support for customizing the SHA encryption algorithm
+
 == 0.3.2 / 2009-01-11
 
 * Use Array#pack/String#unpack instead of Base64 to be compatible with Ruby 1.9+
