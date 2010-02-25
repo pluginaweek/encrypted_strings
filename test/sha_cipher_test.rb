@@ -123,3 +123,30 @@ class ShaCipherWithObjectSaltTest < Test::Unit::TestCase
     assert_equal 'val', @sha_cipher.salt
   end
 end
+
+class ShaCipherWithProcBuilderTest < Test::Unit::TestCase
+  def setup
+    @sha_cipher = EncryptedStrings::ShaCipher.new(:builder => lambda {|data, salt| "#{data}|#{salt}"})
+  end
+  
+  def test_should_encrypt_based_on_custom_builder
+    assert_equal EncryptedStrings::ShaCipher.new.encrypt('test|'), @sha_cipher.encrypt('test')
+  end
+end
+
+class ShaCipherWithObjectBuilderTest < Test::Unit::TestCase
+  def setup
+    @object = Object.new
+    class << @object
+      def build(data, salt)
+        "#{data}|#{salt}"
+      end
+    end
+    
+    @sha_cipher = EncryptedStrings::ShaCipher.new(:builder => @object)
+  end
+  
+  def test_should_encrypt_based_on_custom_builder
+    assert_equal EncryptedStrings::ShaCipher.new.encrypt('test|'), @sha_cipher.encrypt('test')
+  end
+end
