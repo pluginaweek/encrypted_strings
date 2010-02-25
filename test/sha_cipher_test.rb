@@ -92,3 +92,34 @@ class ShaCipherWithNonStringSaltTest < Test::Unit::TestCase
     assert_equal @time.to_s, @sha_cipher.salt
   end
 end
+
+class ShaCipherWithProcSaltTest < Test::Unit::TestCase
+  def setup
+    @sha_cipher = EncryptedStrings::ShaCipher.new(:salt => lambda {|*args| @args = args; 'val'})
+  end
+  
+  def test_should_call_proc_without_arguments
+    assert_equal [], @args
+  end
+  
+  def test_should_use_return_value_from_proc
+    assert_equal 'val', @sha_cipher.salt
+  end
+end
+
+class ShaCipherWithObjectSaltTest < Test::Unit::TestCase
+  def setup
+    @object = Object.new
+    class << @object
+      def salt
+        'val'
+      end
+    end
+    
+    @sha_cipher = EncryptedStrings::ShaCipher.new(:salt => @object)
+  end
+  
+  def test_should_use_salt_method
+    assert_equal 'val', @sha_cipher.salt
+  end
+end

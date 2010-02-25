@@ -51,8 +51,9 @@ module EncryptedStrings
     # Configuration options:
     # * <tt>:algorithm</tt> - The hashing algorithm to use for generating the
     #   encrypted string
-    # * <tt>:salt</tt> - Random bytes used as one of the inputs for generating
-    #   the encrypted string
+    # * <tt>:salt</tt> - Specifies a method, proc or string to call to determine
+    #   the random bytes used as one of the inputs for generating the encrypted
+    #   string
     def initialize(options = {})
       invalid_options = options.keys - [:algorithm, :salt]
       raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
@@ -63,7 +64,7 @@ module EncryptedStrings
       }.merge(options)
       
       self.algorithm = options[:algorithm].upcase
-      self.salt = options[:salt].to_s
+      self.salt = salt_value(options[:salt])
       
       super()
     end
@@ -77,5 +78,21 @@ module EncryptedStrings
     def encrypt(data)
       Digest::const_get(algorithm.upcase).hexdigest(data + salt)
     end
+    
+    private
+      # Evaluates one of several different types of methods to determine the
+      # value of the salt.  Methods can be one of the following types:
+      # * Method / Proc
+      # * String
+      # * Object that responds to :salt
+      def salt_value(value)
+        if value.is_a?(Proc)
+          value.call
+        elsif value.respond_to?(:salt)
+          value.salt
+        else
+          value.to_s
+        end
+      end
   end
 end
