@@ -1,5 +1,6 @@
 == master
 
+* Release gems via rake-gemcutter instead of rubyforge
 * Add support for customizing how the SHA value gets built
 * Allow methods or procs to be defined for dynamically generating SHA salts
 * Add support for customizing the SHA encryption algorithm
