@@ -6,7 +6,7 @@
 
 API
 
-* http://api.pluginaweek.org/encrypted_strings
+* http://rdoc.info/projects/pluginaweek/encrypted_strings
 
 Bugs
 
