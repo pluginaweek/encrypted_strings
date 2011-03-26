@@ -181,3 +181,97 @@ class AsymmetricCipherWithEncryptedPrivateKeyTest < Test::Unit::TestCase
     assert_equal 'test', @asymmetric_cipher.decrypt("HbEh0Hwri26S7SWYqO26DBbzfhR1h/0pXYLjSKUpxF5DOaOCtD9oRN748+Na\nrfNaVN5Eg7RUhbRFZE+UnNHo6Q==\n")
   end
 end
+
+class AsymmetricCipherWithMemoryPrivateKeyTest < Test::Unit::TestCase
+  def setup
+    @key = OpenSSL::PKey::RSA.new(1024)
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:private_key => @key)
+  end
+
+  def test_should_not_be_public
+    assert !@asymmetric_cipher.public?
+  end
+
+  def test_should_be_private
+    assert @asymmetric_cipher.private?
+  end
+
+  def test_not_should_be_able_to_encrypt
+    assert_raise(EncryptedStrings::NoPublicKeyError) {@asymmetric_cipher.encrypt('test')}
+  end
+
+  def test_should_be_able_to_decrypt
+    assert_equal 'test', @asymmetric_cipher.decrypt([@key.public_encrypt('test')].pack('m'))
+  end
+end
+
+class AsymmetricCipherWithMemoryPublicKeyTest < Test::Unit::TestCase
+  def setup
+    @key = OpenSSL::PKey::RSA.new(1024)
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:public_key => @key.public_key)
+  end
+
+  def test_should_be_public
+    assert @asymmetric_cipher.public?
+  end
+
+  def test_not_should_be_private
+    assert !@asymmetric_cipher.private?
+  end
+
+  def test_should_be_able_to_encrypt
+    assert_equal 'test', @key.private_decrypt(@asymmetric_cipher.encrypt('test').unpack('m')[0])
+  end
+
+  def test_not_should_be_able_to_decrypt
+    assert_raise(EncryptedStrings::NoPrivateKeyError) {@asymmetric_cipher.decrypt('test')}
+  end
+end
+
+class AsymmetricCipherWithExchangedRolesTest < Test::Unit::TestCase
+  def setup
+    @key = OpenSSL::PKey::RSA.new(1024)
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:private_key => @key, :public_key => @key.public_key, :encrypt_with_private => true)
+  end
+
+  def test_should_be_public
+    assert @asymmetric_cipher.public?
+  end
+
+  def test_should_be_private
+    assert @asymmetric_cipher.private?
+  end
+
+  def test_should_be_able_to_encrypt
+    assert_equal 'test', @key.public_decrypt(@asymmetric_cipher.encrypt('test').unpack('m')[0])
+  end
+
+  def test_should_be_able_to_decrypt
+    assert_equal 'test', @asymmetric_cipher.decrypt([@key.private_encrypt('test')].pack('m'))
+  end
+end
+
+class AsymmetricCipherWithDerivedPublicKeyTest < Test::Unit::TestCase
+  def setup
+    file = File.dirname(__FILE__) + '/keys/private'
+    @key = OpenSSL::PKey::RSA.new(File.read(file))
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:private_key_file => file, :public_key => :derived)
+  end
+
+  def test_should_be_public
+    assert @asymmetric_cipher.public?
+  end
+
+  def test_should_be_private
+    assert @asymmetric_cipher.private?
+  end
+
+  def test_should_be_able_to_encrypt
+    assert_equal 'test', @key.private_decrypt(@asymmetric_cipher.encrypt('test').unpack('m')[0])
+  end
+
+  def test_should_be_able_to_decrypt
+    assert_equal 'test', @asymmetric_cipher.decrypt([@key.public_encrypt('test')].pack('m'))
+  end
+end
+

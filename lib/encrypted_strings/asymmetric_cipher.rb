@@ -61,12 +61,18 @@ module EncryptedStrings
       attr_accessor :default_public_key_file
     end
     
-    # Private key used for decrypting data
+    # Private key file used for decrypting data
     attr_reader :private_key_file
     
-    # Public key used for encrypting data
+    # Public key file used for encrypting data
     attr_reader :public_key_file
     
+    # Private key used for decrypting data
+    attr_reader :private_key
+
+    # Public key used for encrypting data
+    attr_reader :public_key
+
     # The algorithm to use if the key files are encrypted themselves
     attr_accessor :algorithm
     
@@ -76,12 +82,15 @@ module EncryptedStrings
     # Creates a new cipher that uses an asymmetric encryption strategy.
     # 
     # Configuration options:
-    # * <tt>:private_key_file</tt> - Encrypted private key file
+    # * <tt>:private_key_file</tt> - Private key file (possibly encrypted)
     # * <tt>:public_key_file</tt> - Public key file
+    # * <tt>:private_key</tt> - Private key as String or OpenSSL::PKey::RSA
+    # * <tt>:public_key</tt> - Public key as String or OpenSSL::PKey::RSA, or :derived to derive it from the private key
     # * <tt>:password</tt> - The password to use in the symmetric cipher
     # * <tt>:algorithm</tt> - Algorithm to use symmetrically encrypted strings
+    # * <tt>:encrypt_with_private</tt> - Encrypt with the private instead of the public key
     def initialize(options = {})
-      invalid_options = options.keys - [:private_key_file, :public_key_file, :algorithm, :password]
+      invalid_options = options.keys - [:private_key_file, :public_key_file, :private_key, :public_key, :algorithm, :password, :encrypt_with_private]
       raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
       
       options = {
@@ -89,11 +98,13 @@ module EncryptedStrings
         :public_key_file => AsymmetricCipher.default_public_key_file
       }.merge(options)
       
-      @public_key = @private_key = nil
+      @public_key = options[:public_key]
+      @private_key = options[:private_key]
+      @encrypt_with_private = options[:encrypt_with_private] # TODO support encryption with private key
       
       self.private_key_file = options[:private_key_file]
       self.public_key_file  = options[:public_key_file]
-      raise ArgumentError, 'At least one key file must be specified (:private_key_file or :public_key_file)' unless private_key_file || public_key_file
+      raise ArgumentError, 'At least one key or key file must be specified (:private_key, :public_key, :private_key_file or :public_key_file)' unless @private_key || @public_key || private_key_file || public_key_file
       
       self.algorithm  = options[:algorithm]
       self.password = options[:password]
@@ -101,22 +112,18 @@ module EncryptedStrings
       super()
     end
     
-    # Encrypts the given data. If no public key file has been specified, then
+    # Encrypts the given data. If no public key has been specified, then
     # a NoPublicKeyError will be raised.
     def encrypt(data)
-      raise NoPublicKeyError, "Public key file: #{public_key_file}" unless public?
-      
-      encrypted_data = public_rsa.public_encrypt(data)
-      [encrypted_data].pack('m')
+      k = @encrypt_with_private ? :private : :public
+      perform k, :encrypt, data
     end
-    
-    # Decrypts the given data. If no private key file has been specified, then
+
+    # Decrypts the given data. If no private key has been specified, then
     # a NoPrivateKeyError will be raised.
     def decrypt(data)
-      raise NoPrivateKeyError, "Private key file: #{private_key_file}" unless private?
-      
-      decrypted_data = data.unpack('m')[0]
-      private_rsa.private_decrypt(decrypted_data)
+      k = @encrypt_with_private ? :public : :private
+      perform k, :decrypt, data
     end
     
     # Sets the location of the private key and loads it
@@ -131,55 +138,82 @@ module EncryptedStrings
     
     # Does this cipher have a public key available?
     def public?
-      return true if @public_key
-      
-      load_public_key
-      !@public_key.nil?
+      !load_public_key.nil?
     end
     
     # Does this cipher have a private key available?
     def private?
-      return true if @private_key
-      
-      load_private_key
-      !@private_key.nil?
+      !load_private_key.nil?
     end
     
     private
       # Loads the private key from the configured file
       def load_private_key
-        @private_rsa = nil
-        
-        if private_key_file && File.file?(private_key_file)
-          @private_key = File.read(private_key_file)
+        @private_key ||= begin
+          @private_rsa = nil
+
+          if private_key_file && File.file?(private_key_file)
+            File.read(private_key_file)
+          end
         end
       end
       
       # Loads the public key from the configured file
       def load_public_key
-        @public_rsa = nil
-        
-        if public_key_file && File.file?(public_key_file)
-          @public_key = File.read(public_key_file)
+        @public_key ||= begin
+          @public_rsa = nil
+
+          if public_key_file && File.file?(public_key_file)
+            @public_key = File.read(public_key_file)
+          end
         end
       end
       
       # Retrieves the private RSA from the private key
       def private_rsa
         if password
-          options = {:password => password}
+          options = {:password => password} # TODO support Proc
           options[:algorithm] = algorithm if algorithm
           
           private_key = @private_key.decrypt(:symmetric, options)
           OpenSSL::PKey::RSA.new(private_key)
         else
-          @private_rsa ||= OpenSSL::PKey::RSA.new(@private_key)
+          @private_rsa ||= make_key(@private_key)
         end
       end
       
       # Retrieves the public RSA
       def public_rsa
-        @public_rsa ||= OpenSSL::PKey::RSA.new(@public_key)
+        @public_rsa ||= if @public_key == :derived
+          private_rsa.public_key
+        else
+          make_key(@public_key)
+        end
       end
+
+      def make_key(key)
+        # TODO support Proc
+        if key.is_a?(OpenSSL::PKey::RSA)
+          key
+        else
+          OpenSSL::PKey::RSA.new(key)
+        end
+      end
+
+      def perform(type, crypt, data)
+        data = data.unpack('m')[0] if crypt == :decrypt
+        result= get_key(type).send("#{type}_#{crypt}", data)
+        crypt == :encrypt ? [result].pack('m') : result
+      end
+
+      def get_key(type)
+        unless send("#{type}?")
+          file = send("#{type}_key_file")
+          err = EncryptedStrings.const_get("No#{type.capitalize}KeyError")
+          raise err, "#{type.capitalize} key file: #{file}"
+        end
+        send("#{type}_rsa")
+      end
+
   end
 end
