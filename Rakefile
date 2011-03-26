@@ -28,6 +28,7 @@ task :default => :test
 desc "Test the #{spec.name} plugin."
 Rake::TestTask.new(:test) do |t|
   t.libs << 'lib'
+  t.libs << '.'
   t.test_files = spec.test_files
   t.verbose = true
 end
