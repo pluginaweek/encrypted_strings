@@ -51,11 +51,11 @@ module EncryptedStrings
     @default_algorithm = 'DES-EDE3-CBC'
     
     # The algorithm to use for encryption/decryption
-    attr_accessor :algorithm
+    dynamic_accessor :algorithm
     
     # The password that generates the key/initialization vector for the
     # algorithm
-    attr_accessor :password
+    dynamic_accessor :password
     
     # Creates a new cipher that uses a symmetric encryption strategy.
     # 
@@ -74,7 +74,7 @@ module EncryptedStrings
       
       self.algorithm = options[:algorithm]
       self.password = options[:password]
-      raise NoPasswordError if password.nil?
+      raise NoPasswordError unless options[:password]
       
       super()
     end
@@ -90,10 +90,11 @@ module EncryptedStrings
       cipher = build_cipher(:encrypt)
       [cipher.update(data) + cipher.final].pack('m')
     end
-    
+
     private
       def build_cipher(type) #:nodoc:
         cipher = OpenSSL::Cipher::Cipher.new(algorithm).send(type)
+        raise NoPasswordError if password.nil?
         cipher.pkcs5_keyivgen(password)
         cipher
       end

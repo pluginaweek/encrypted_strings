@@ -65,10 +65,10 @@ module EncryptedStrings
     @default_builder = lambda {|data, salt| "#{data}#{salt}"}
     
     # The algorithm to use for encryption/decryption
-    attr_accessor :algorithm
+    dynamic_accessor :algorithm
     
     # The salt value to use for encryption
-    attr_accessor :salt
+    dynamic_accessor :salt
     
     # The function to use to build the value that gets hashed
     attr_accessor :builder

@@ -74,10 +74,10 @@ module EncryptedStrings
     attr_reader :public_key
 
     # The algorithm to use if the key files are encrypted themselves
-    attr_accessor :algorithm
+    dynamic_accessor :algorithm
     
     # The password used during symmetric decryption of the key files
-    attr_accessor :password
+    dynamic_accessor :password
     
     # Creates a new cipher that uses an asymmetric encryption strategy.
     # 
@@ -100,7 +100,7 @@ module EncryptedStrings
       
       @public_key = options[:public_key]
       @private_key = options[:private_key]
-      @encrypt_with_private = options[:encrypt_with_private] # TODO support encryption with private key
+      @encrypt_with_private = options[:encrypt_with_private]
       
       self.private_key_file = options[:private_key_file]
       self.public_key_file  = options[:public_key_file]
@@ -171,6 +171,7 @@ module EncryptedStrings
       
       # Retrieves the private RSA from the private key
       def private_rsa
+        @private_rsa = nil if @private_key.is_a?(Proc)
         if password
           options = {:password => password} # TODO support Proc
           options[:algorithm] = algorithm if algorithm
@@ -184,6 +185,8 @@ module EncryptedStrings
       
       # Retrieves the public RSA
       def public_rsa
+        @public_rsa = nil if @public_key.is_a?(Proc) or
+          (@public_key == :derived and @private_key.is_a?(Proc))
         @public_rsa ||= if @public_key == :derived
           private_rsa.public_key
         else
@@ -192,7 +195,7 @@ module EncryptedStrings
       end
 
       def make_key(key)
-        # TODO support Proc
+        key = key[] if key.is_a?(Proc)
         if key.is_a?(OpenSSL::PKey::RSA)
           key
         else
@@ -214,6 +217,5 @@ module EncryptedStrings
         end
         send("#{type}_rsa")
       end
-
   end
 end

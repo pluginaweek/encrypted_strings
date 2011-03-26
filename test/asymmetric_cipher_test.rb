@@ -275,3 +275,78 @@ class AsymmetricCipherWithDerivedPublicKeyTest < Test::Unit::TestCase
   end
 end
 
+class AsymmetricCipherWithProcAsPasswordTest < Test::Unit::TestCase
+  def setup
+    @pw1 = 'secret'
+    @pw2 = 'test'
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:private_key_file => File.dirname(__FILE__) + '/keys/encrypted_private', :algorithm => 'DES-EDE3-CBC', :password => proc{@pw})
+  end
+
+  def test_should_have_the_right_password
+    [@pw1, @pw2].each do |pw|
+      assert pw, @asymmetric_cipher.password
+    end
+  end
+
+  def test_should_be_private
+    @pw = @pw1
+    assert @asymmetric_cipher.private?
+  end
+
+  def test_should_be_able_to_decrypt
+    @pw = @pw1
+    assert_equal 'test', @asymmetric_cipher.decrypt("HbEh0Hwri26S7SWYqO26DBbzfhR1h/0pXYLjSKUpxF5DOaOCtD9oRN748+Na\nrfNaVN5Eg7RUhbRFZE+UnNHo6Q==\n")
+  end
+
+  def test_should_not_be_able_to_decrypt_on_wrong_password
+    @pw = @pw2
+    assert_raise(OpenSSL::Cipher::CipherError) { @asymmetric_cipher.decrypt("HbEh0Hwri26S7SWYqO26DBbzfhR1h/0pXYLjSKUpxF5DOaOCtD9oRN748+Na\nrfNaVN5Eg7RUhbRFZE+UnNHo6Q==\n") }
+  end
+end
+
+class AsymmetricCipherWithProcAsPublicKeyTest < Test::Unit::TestCase
+  def setup
+    @key = OpenSSL::PKey::RSA.new(1024)
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:public_key => proc{@key.public_key})
+  end
+
+  def test_should_be_public
+    assert @asymmetric_cipher.public?
+  end
+
+  def test_not_should_be_private
+    assert !@asymmetric_cipher.private?
+  end
+
+  def test_should_be_able_to_encrypt
+    assert_equal 'test', @key.private_decrypt(@asymmetric_cipher.encrypt('test').unpack('m')[0])
+  end
+
+  def test_not_should_be_able_to_decrypt
+    assert_raise(EncryptedStrings::NoPrivateKeyError) {@asymmetric_cipher.decrypt('test')}
+  end
+end
+
+class AsymmetricCipherWithProcAsPrivateKeyAndDerivedPublicKeyTest < Test::Unit::TestCase
+  def setup
+    file = File.dirname(__FILE__) + '/keys/private'
+    @key1 = OpenSSL::PKey::RSA.new(File.read(file))
+    @key2 = OpenSSL::PKey::RSA.new(1024)
+    @asymmetric_cipher = EncryptedStrings::AsymmetricCipher.new(:private_key => proc{@key}, :public_key => :derived)
+  end
+
+  def test_should_be_able_to_encrypt
+    [@key1, @key2].each do |k|
+      @key = k
+      assert_equal 'test', k.private_decrypt(@asymmetric_cipher.encrypt('test').unpack('m')[0])
+    end
+  end
+
+  def test_should_be_able_to_decrypt_with_key1
+    [@key1, @key2].each do |k|
+      @key = k
+      assert_equal 'test', @asymmetric_cipher.decrypt([k.public_encrypt('test')].pack('m'))
+    end
+  end
+end
+
