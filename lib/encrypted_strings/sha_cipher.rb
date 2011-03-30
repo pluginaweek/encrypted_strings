@@ -118,7 +118,7 @@ module EncryptedStrings
       # * String
       # * Object that responds to :salt
       def salt_value(value)
-        if value.is_a?(Proc)
+        if value.respond_to?(:call)
           value.call
         elsif value.respond_to?(:salt)
           value.salt

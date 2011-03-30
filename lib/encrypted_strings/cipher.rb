@@ -7,7 +7,7 @@ module EncryptedStrings
       eval <<-CODE
         attr_writer :#{name}
         def #{name}
-          @#{name}.is_a?(Proc) ? @#{name}[] : @#{name}
+          @#{name}.respond_to?(:call) ? @#{name}[] : @#{name}
         end
       CODE
     end

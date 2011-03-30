@@ -68,10 +68,10 @@ module EncryptedStrings
     attr_reader :public_key_file
     
     # Private key used for decrypting data
-    attr_reader :private_key
+    dynamic_accessor :private_key
 
     # Public key used for encrypting data
-    attr_reader :public_key
+    dynamic_accessor :public_key
 
     # The algorithm to use if the key files are encrypted themselves
     dynamic_accessor :algorithm
@@ -171,31 +171,30 @@ module EncryptedStrings
       
       # Retrieves the private RSA from the private key
       def private_rsa
-        @private_rsa = nil if @private_key.is_a?(Proc)
+        @private_rsa = nil if @private_key.respond_to?(:call)
         if password
-          options = {:password => password} # TODO support Proc
+          options = {:password => password}
           options[:algorithm] = algorithm if algorithm
           
-          private_key = @private_key.decrypt(:symmetric, options)
-          OpenSSL::PKey::RSA.new(private_key)
+          pkey = @private_key.decrypt(:symmetric, options)
+          OpenSSL::PKey::RSA.new(pkey)
         else
-          @private_rsa ||= make_key(@private_key)
+          @private_rsa ||= make_key(private_key)
         end
       end
       
       # Retrieves the public RSA
       def public_rsa
-        @public_rsa = nil if @public_key.is_a?(Proc) or
-          (@public_key == :derived and @private_key.is_a?(Proc))
+        @public_rsa = nil if @public_key.respond_to?(:call) or
+          (@public_key == :derived and @private_key.respond_to?(:call))
         @public_rsa ||= if @public_key == :derived
           private_rsa.public_key
         else
-          make_key(@public_key)
+          make_key(public_key)
         end
       end
 
       def make_key(key)
-        key = key[] if key.is_a?(Proc)
         if key.is_a?(OpenSSL::PKey::RSA)
           key
         else
