@@ -20,6 +20,10 @@ Source
 
 * git://github.com/pluginaweek/encrypted_strings.git
 
+Mailing List
+
+* http://groups.google.com/group/pluginaweek-talk
+
 == Description
 
 Encrypting and decrypting data is not exactly the most straightforward and DRY
