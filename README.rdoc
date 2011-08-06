@@ -10,7 +10,7 @@ API
 
 Bugs
 
-* http://pluginaweek.lighthouseapp.com/projects/13270-encrypted_strings
+* http://github.com/pluginaweek/encrypted_strings/issues
 
 Development
 
