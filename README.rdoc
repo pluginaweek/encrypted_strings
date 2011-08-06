@@ -1,4 +1,4 @@
-= encrypted_strings
+= encrypted_strings {http://travis-ci.org/pluginaweek/encrypted_strings.png}[http://travis-ci.org/pluginaweek/encrypted_strings]
 
 +encrypted_strings+ provides dead-simple string encryption/decryption syntax.
 
