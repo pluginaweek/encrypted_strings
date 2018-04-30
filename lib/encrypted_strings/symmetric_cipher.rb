@@ -66,34 +66,34 @@ module EncryptedStrings
     def initialize(options = {})
       invalid_options = options.keys - [:algorithm, :password]
       raise ArgumentError, "Unknown key(s): #{invalid_options.join(", ")}" unless invalid_options.empty?
-      
+
       options = {
         :algorithm => SymmetricCipher.default_algorithm,
         :password => SymmetricCipher.default_password
       }.merge(options)
-      
+
       self.algorithm = options[:algorithm]
       self.password = options[:password]
       raise NoPasswordError if password.nil?
-      
+
       super()
     end
-    
+
     # Decrypts the current string using the current key and algorithm specified
     def decrypt(data)
       cipher = build_cipher(:decrypt)
       cipher.update(data.unpack('m')[0]) + cipher.final
     end
-    
+
     # Encrypts the current string using the current key and algorithm specified
     def encrypt(data)
       cipher = build_cipher(:encrypt)
       [cipher.update(data) + cipher.final].pack('m')
     end
-    
+
     private
       def build_cipher(type) #:nodoc:
-        cipher = OpenSSL::Cipher::Cipher.new(algorithm).send(type)
+        cipher = OpenSSL::Cipher.new(algorithm).send(type)
         cipher.pkcs5_keyivgen(password)
         cipher
       end
