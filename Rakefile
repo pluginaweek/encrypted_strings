@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'rake'
 require 'rake/testtask'
-require 'rake/rdoctask'
+require 'rdoc/task'
 
 desc 'Default: run all tests.'
 task :default => :test
@@ -28,7 +28,7 @@ rescue LoadError
 end
 
 desc "Generate documentation for encrypted_strings."
-Rake::RDocTask.new(:rdoc) do |rdoc|
+RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = 'encrypted_strings'
   rdoc.options << '--line-numbers' << '--inline-source' << '--main=README.rdoc'
