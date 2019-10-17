@@ -1,0 +1,30 @@
+# Generic config to build a gem
+version: 2
+
+# Checkout with a fetch and pull
+checkout_repo: &checkout
+  run:
+    name: Checkout
+    command: 'git config user.name "circleci" && git config user.email "richard.parratt@sharesight.co.nz" && git fetch && git checkout master && git pull && git merge --no-edit $CIRCLE_BRANCH && git status'
+
+# Install Ruby dependencies
+run: &bundle_install
+  name: Bundle Install
+  command: 'gem install bundler && bundle --version && bundle install'
+
+jobs:
+  build:
+
+    docker:
+      - image: circleci/ruby:2.6.5
+
+    steps:
+      - checkout
+
+      - *checkout
+
+      - run: *bundle_install
+
+      - run:
+          name: 'Test gem'
+          command: rake test
