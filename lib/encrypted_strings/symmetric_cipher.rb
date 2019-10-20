@@ -93,7 +93,7 @@ module EncryptedStrings
     
     private
       def build_cipher(type) #:nodoc:
-        cipher = OpenSSL::Cipher::Cipher.new(algorithm).send(type)
+        cipher = OpenSSL::Cipher.new(algorithm).send(type)
         cipher.pkcs5_keyivgen(password)
         cipher
       end
