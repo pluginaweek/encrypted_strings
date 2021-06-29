@@ -1,5 +1,5 @@
 # Generic config to build a gem
-version: 2
+version: 2.1
 
 # Checkout with a fetch and pull
 checkout_repo: &checkout
@@ -13,10 +13,13 @@ run: &bundle_install
   command: 'gem install bundler && bundle --version && bundle install'
 
 jobs:
-  build:
+  test:
+    parameters:
+      ruby-version:
+        type: string
 
     docker:
-      - image: circleci/ruby:2.6.5
+      - image: circleci/ruby:<< parameters.ruby-version >>
 
     steps:
       - checkout
@@ -28,3 +31,13 @@ jobs:
       - run:
           name: 'Test gem'
           command: rake test
+
+# using a matrix to test against multiple Ruby version
+# https://circleci.com/docs/2.0/configuration-reference/#matrix-requires-version-21
+workflows:
+  test:
+    jobs:
+      - test:
+          matrix:
+            parameters:
+              ruby-version: ["2.6.5", "2.7.1", "2.7.3"]
