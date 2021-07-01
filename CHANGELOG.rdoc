@@ -1,5 +1,9 @@
 == master
 
+== 0.3.5 / 2021-06-02
+
+* add support for Ruby 2.7
+
 == 0.3.3 / 2010-03-07
 
 * Release gems via rake-gemcutter instead of rubyforge
