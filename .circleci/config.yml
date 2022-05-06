@@ -19,7 +19,7 @@ jobs:
         type: string
 
     docker:
-      - image: circleci/ruby:<< parameters.ruby-version >>
+      - image: cimg/ruby:<< parameters.ruby-version >>
 
     steps:
       - checkout
